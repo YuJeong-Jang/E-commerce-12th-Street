@@ -43,23 +43,23 @@ $ ./gradlew run
 - http://localhost:8080 확인
 
 ## 주요 그래들 명령어
-# 프로젝트 빌드 (컴파일 + 테스트)
+### 프로젝트 빌드 (컴파일 + 테스트)
 ./gradlew build
 
-# JAR 파일만 생성
+### JAR 파일만 생성
 ./gradlew jar
 
-# Fat JAR 생성 (모든 의존성 포함)
+### Fat JAR 생성 (모든 의존성 포함)
 ./gradlew fatJar
 
-# 애플리케이션 실행
+### 애플리케이션 실행
 ./gradlew run
 
-# 의존성 확인
+### 의존성 확인
 ./gradlew dependencies
 
-# 프로젝트 클린
+### 프로젝트 클린
 ./gradlew clean
 
-# 클린 후 빌드
+### 클린 후 빌드
 ./gradlew clean build
