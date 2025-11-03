@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판 프로젝트</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 60px 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            background: #f0fdf4;
+            border: 2px solid #86efac;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+
+        .status h2 {
+            color: #16a34a;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .status p {
+            color: #166534;
+            font-size: 1rem;
+        }
+
+        .info {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .info h3 {
+            color: #374151;
+            margin-bottom: 15px;
+        }
+
+        .info ul {
+            list-style: none;
+            color: #6b7280;
+        }
+
+        .info li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .info li:last-child {
+            border-bottom: none;
+        }
+
+        .info li strong {
+            color: #374151;
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🎉 게시판 프로젝트</h1>
+
+        <div class="status">
+            <h2>✅ 서버 정상 작동 중</h2>
+            <p>빌드 및 실행이 성공적으로 완료되었습니다!</p>
+        </div>
+
+        <div class="info">
+            <h3>📋 프로젝트 정보</h3>
+            <ul>
+                <li><strong>프레임워크:</strong> 순수 Java (No Framework)</li>
+                <li><strong>빌드 도구:</strong> Gradle</li>
+                <li><strong>Java 버전:</strong> 17</li>
+                <li><strong>서버 포트:</strong> 8080</li>
+                <li><strong>상태:</strong> 개발 중</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>Powered by Pure Java & Socket Programming</p>
+            <p>© 2025 Team Project</p>
+        </div>
+    </div>
+</body>
+
+</html>
