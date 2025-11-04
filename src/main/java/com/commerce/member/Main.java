@@ -1,118 +1,65 @@
 package com.commerce.member;
 
-import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import org.apache.catalina.Context;
+import org.apache.catalina.WebResourceRoot;
+import org.apache.catalina.startup.Tomcat;
+import org.apache.catalina.webresources.DirResourceSet;
+import org.apache.catalina.webresources.StandardRoot;
 
+import java.io.File;
+
+/**
+ * ./gradlew run 명령어로 내장 톰캣 서버를 실행하는 메인 클래스입니다.
+ * 3-Tier 아키텍처의 Tier 1(View)과 Tier 2(Controller)를 호스팅합니다.
+ */
 public class Main {
+
     private static final int PORT = 8080;
 
-    public static void main(String[] args) {
-        System.out.println("=== 서버 시작 ===");
-        System.out.println("포트: " + PORT);
-        System.out.println("URL: http://localhost:" + PORT);
+    public static void main(String[] args) throws Exception {
+        System.out.println("=== 내장 톰캣 서버 시작 ===");
+
+        Tomcat tomcat = new Tomcat();
+        tomcat.setPort(PORT);
+        tomcat.getConnector(); // HTTP 커넥터 초기화
+
+        // [경로 수정]
+        // 1stpjt 루트에서 src/main/webapp을 바라봅니다.
+        String webappDirLocation = "src/main/webapp/";
+        String webappAbsolutePath = new File(webappDirLocation).getAbsolutePath();
         
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("서버가 실행 중입니다. 접속을 기다립니다...\n");
-            
-            while (true) {
-                Socket clientSocket = serverSocket.accept();
-                new Thread(() -> handleRequest(clientSocket)).start();
-            }
-            
-        } catch (IOException e) {
-            System.err.println("서버 시작 실패: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
+        System.out.println("웹 앱 경로(Context Path): " + webappAbsolutePath);
 
-    private static void handleRequest(Socket socket) {
-        try (BufferedReader in = new BufferedReader(
-                new InputStreamReader(socket.getInputStream()));
-             OutputStream out = socket.getOutputStream()) {
+        // [핵심 수정 1]
+        // addWebapp를 사용해야 톰캣이 JSP 엔진을 정상적으로 초기화합니다. (500 에러 해결)
+        Context context = tomcat.addWebapp("", webappAbsolutePath);
 
-            // HTTP 요청 첫 줄 읽기
-            String requestLine = in.readLine();
-            if (requestLine == null) return;
-            
-            System.out.println("요청: " + requestLine);
+        // [핵심 수정 2]
+        // 404 에러를 해결하기 위해, 컴파일된 클래스 경로를 수동으로 추가합니다.
+        // 1. 톰캣이 컴파일된 .class 파일들을 찾을 경로를 지정합니다.
+        File additionWebInfClasses = new File("build/classes/java/main");
 
-            // 요청 헤더 읽기 (본문 전까지)
-            String line;
-            while ((line = in.readLine()) != null && !line.isEmpty()) {
-                // 헤더 읽기 (필요시 처리)
-            }
-
-            // HTTP 요청 파싱
-            String[] parts = requestLine.split(" ");
-            String method = parts[0];
-            String path = parts[1];
-
-            // 루트 경로 처리
-            if (path.equals("/")) {
-                path = "/index.html";
-            }
-
-            // HTML 파일 읽기 및 응답
-            String htmlContent = loadHtmlFile(path);
-            
-            if (htmlContent != null) {
-                sendResponse(out, 200, "text/html", htmlContent);
-            } else {
-                String notFoundHtml = "<html><body><h1>404 Not Found</h1><p>요청한 페이지를 찾을 수 없습니다.</p></body></html>";
-                sendResponse(out, 404, "text/html", notFoundHtml);
-            }
-
-        } catch (IOException e) {
-            System.err.println("요청 처리 실패: " + e.getMessage());
-        }
-    }
-
-    private static String loadHtmlFile(String path) {
-        try {
-            // resources/static 폴더에서 파일 읽기
-            InputStream inputStream = Main.class.getResourceAsStream("/static" + path);
-            
-            if (inputStream == null) {
-                System.out.println("파일을 찾을 수 없음: " + path);
-                return null;
-            }
-
-            BufferedReader reader = new BufferedReader(
-                new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-            StringBuilder content = new StringBuilder();
-            String line;
-            
-            while ((line = reader.readLine()) != null) {
-                content.append(line).append("\n");
-            }
-            
-            reader.close();
-            return content.toString();
-            
-        } catch (IOException e) {
-            System.err.println("파일 읽기 실패: " + e.getMessage());
-            return null;
-        }
-    }
-
-    private static void sendResponse(OutputStream out, int statusCode, 
-                                     String contentType, String body) throws IOException {
-        byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
+        // 2. 톰캣의 리소스 설정을 가져옵니다.
+        WebResourceRoot resources = new StandardRoot(context);
         
-        String statusMessage = (statusCode == 200) ? "OK" : "Not Found";
+        // 3. .class 파일 경로를 톰캣 리소스의 "/WEB-INF/classes"에 마운트(연결)합니다.
+        DirResourceSet resourceSet = new DirResourceSet(resources, "/WEB-INF/classes",
+                additionWebInfClasses.getAbsolutePath(), "/");
+        resources.addPreResources(resourceSet);
         
-        String response = "HTTP/1.1 " + statusCode + " " + statusMessage + "\r\n" +
-                         "Content-Type: " + contentType + "; charset=UTF-8\r\n" +
-                         "Content-Length: " + bodyBytes.length + "\r\n" +
-                         "Connection: close\r\n" +
-                         "\r\n";
-        
-        out.write(response.getBytes(StandardCharsets.UTF_8));
-        out.write(bodyBytes);
-        out.flush();
+        // 4. 톰캣 컨텍스트에 수정된 리소스 설정을 다시 적용합니다.
+        context.setResources(resources);
+
+        // [수정] addWebapp를 사용했으므로, initWebappDefaults는 절대 호출하면 안 됩니다.
+        // (호출 시 "Child name [default] is not unique" 에러 발생)
+
+        // 5. 톰캣 서버 시작 및 대기
+        tomcat.start();
+        System.out.println("서버가 실행 중입니다. 접속을 기다립니다...");
+        System.out.println("URL: http://localhost:" + PORT + "/register.jsp");
+
+        tomcat.getServer().await();
     }
 }
+
+
