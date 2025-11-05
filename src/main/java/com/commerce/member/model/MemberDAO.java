@@ -61,5 +61,28 @@ public class MemberDAO {
             return false;
         }
     }
+	public MemberDTO getMemberByUsername(String username) {
+        String sql = "SELECT username, email, created_at FROM member WHERE username = ?";
+        MemberDTO member = null;
+
+        try (Connection conn = DatabaseUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    member = new MemberDTO();
+                    member.setUsername(rs.getString("username"));
+                    member.setEmail(rs.getString("email"));
+                    member.setCreatedAt(rs.getTimestamp("created_at"));
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[MemberDAO] getMemberByUsername 실패: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return member;
+    }
 }
 

@@ -25,7 +25,7 @@
             <h1>E-commerce 12th Street</h1>
             <h2>게시판 목록</h2>
             <ul>
-                <li><a href="board.jsp?id=1">자유 게시판</a> (아직 구현 안 됨)</li>
+                <li><a href="mypage.do">마이 페이지</a><br></li>
                 <li><a href="board.jsp?id=2">상품 문의</a> (아직 구현 안 됨)</li>
             </ul>
         </div>
@@ -67,7 +67,7 @@
             %>
                 <h3>내 정보</h3>
                 <p><strong><%= username %></strong> 님, 환영합니다!</p>
-                <a href="mypage.jsp">마이 페이지</a><br>
+                <a href="mypage.do">마이 페이지</a><br>
                 <a href="logout.do">로그아웃</a>
             <%
                 }
