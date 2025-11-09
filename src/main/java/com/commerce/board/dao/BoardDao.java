@@ -62,5 +62,45 @@ public class BoardDao {
         }
     }
     
-    // TODO: 게시글 수정(updateBoard), 삭제(deleteBoard), 상세조회(getBoardById) 구현 필요
+    /**
+     * 게시글 수정 (dashboard.jsp의 모달에서 사용)
+     */
+    public boolean updateBoard(Board board) {
+        String sql = "UPDATE Board SET title = ?, contents = ?, modYmd = NOW() WHERE boardSeq = ?";
+
+        try (Connection conn = DbConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, board.getTitle());
+            pstmt.setString(2, board.getContents());
+            pstmt.setInt(3, board.getBoardSeq());
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 게시글 삭제 (논리적 삭제: delYn = true로 변경)
+     */
+    public boolean deleteBoard(int boardSeq) {
+        String sql = "UPDATE Board SET delYn = true, delYmd = NOW() WHERE boardSeq = ?";
+
+        try (Connection conn = DbConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, boardSeq);
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

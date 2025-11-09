@@ -1,11 +1,12 @@
 package com.commerce.member;
+
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
+import com.commerce.board.servlet.BoardServlet;
+
 import java.io.File;
 import java.util.Properties;
 import java.io.InputStream;
-
-// import org.apache.catalina.core.JasperListener;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -31,13 +32,21 @@ public class Main {
         String webappDirLocation = "src/main/webapp/";
         Context context = tomcat.addWebapp("", new File(webappDirLocation).getAbsolutePath());
         
-        // context.addLifecycleListener(new JasperListener());
+        // 4. 서블릿 수동 등록 (중요!)
+        System.out.println("=== 서블릿 등록 중 ===");
+        
+        // BoardServlet 등록
+        Tomcat.addServlet(context, "boardServlet", new BoardServlet());
+        context.addServletMappingDecoded("/board/*", "boardServlet");
+        
+        System.out.println("BoardServlet 등록 완료: /board/*");
         
         // 5. 서버 시작
         tomcat.start();
         System.out.println("서버 포트: " + port);
         System.out.println("웹 루트: " + new File(webappDirLocation).getAbsolutePath());
         System.out.println("URL: http://localhost:" + port);
+        System.out.println("게시판: http://localhost:" + port + "/board/dashboard");
         System.out.println("서버가 성공적으로 실행되었습니다. (중지: CTRL+C)");
         
         tomcat.getServer().await();

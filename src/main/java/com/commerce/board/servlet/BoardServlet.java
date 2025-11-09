@@ -48,12 +48,20 @@ public class BoardServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String pathInfo = req.getPathInfo();
+        
+        // POST 요청도 인코딩 UTF-8 설정
+        req.setCharacterEncoding("UTF-8");
 
         switch (pathInfo) {
             case "/write":
                 handleWritePost(req, res); // 글쓰기 처리
                 break;
-            // TODO: /edit, /delete 등 수정/삭제 처리 라우팅 구현
+            case "/edit":
+                handleEditPost(req, res); // 수정 처리
+                break;
+            case "/delete":
+                handleDeletePost(req, res); // 삭제 처리
+                break;
             default:
                 res.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -77,7 +85,8 @@ public class BoardServlet extends HttpServlet {
     // POST /board/write
     private void handleWritePost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         // 요청 인코딩 설정 (JSP에서 UTF-8로 넘어오도록 설정)
-        req.setCharacterEncoding("UTF-8");
+        // -> doPost 상단에서 공통 처리
+        // req.setCharacterEncoding("UTF-8"); 
 
         String title = req.getParameter("title");
         String contents = req.getParameter("contents");
@@ -100,5 +109,51 @@ public class BoardServlet extends HttpServlet {
             req.setAttribute("errorMessage", "게시글 등록에 실패했습니다.");
             showWriteForm(req, res);
         }
+    }
+
+    // POST /board/edit
+    private void handleEditPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        try {
+            int boardSeq = Integer.parseInt(req.getParameter("boardSeq"));
+            String title = req.getParameter("title");
+            String contents = req.getParameter("contents");
+
+            Board board = new Board();
+            board.setBoardSeq(boardSeq);
+            board.setTitle(title);
+            board.setContents(contents);
+            
+            // TODO: 수정 권한 검사 (로그인한 사용자와 작성자가 같은지)
+
+            boardDao.updateBoard(board);
+            
+        } catch (NumberFormatException e) {
+            // boardSeq 파라미터가 숫자가 아닐 경우
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        // 처리 후 대시보드로 리다이렉트
+        res.sendRedirect(req.getContextPath() + "/board/dashboard");
+    }
+    
+    // POST /board/delete
+    private void handleDeletePost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        try {
+            int boardSeq = Integer.parseInt(req.getParameter("boardSeq"));
+            
+            // TODO: 삭제 권한 검사
+
+            boardDao.deleteBoard(boardSeq);
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        // 처리 후 대시보드로 리다이렉트
+        res.sendRedirect(req.getContextPath() + "/board/dashboard");
     }
 }

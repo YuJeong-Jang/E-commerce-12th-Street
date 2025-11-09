@@ -63,3 +63,6 @@ $ ./gradlew run
 
 ### 클린 후 빌드
 ./gradlew clean build
+
+
+톰캣 버전 Embedded Tomcat 10.1.20
