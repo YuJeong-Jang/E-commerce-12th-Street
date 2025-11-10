@@ -1,29 +1,24 @@
 # E-commerce-12th-Street
 
 ## 프로젝트 구조
-- `lib/` - 외부 라이브러리
-- `sql/` - SQL 스크립트
 - `src/main/java/com/commerce/board` - 게시판
 - `src/main/java/com/commerce/member` - 회원관리
 - `src/main/resources/application.properties` - 환경설정
-- `src/main/resources/static` - html
+- `src/main/webapp` - jsp
 
 ## 환경 설정
 1. JDK 17 이상 설치
     - mac : brew install microsoftopenjdk@17
     - window : choco install openjdk17 -y (Chocolatey 패키지 사용)
-2. Gradle 설치
+
+2. Gradle 8.5 설치 (Gretty dependency를 사용하기 위해 버전 고정)
     - mac : brew install gradle
-    - window : choco install gradle -y
-3. MySQL 9 이상 설치
-    - mac : brew install mysql
-    - window : choco install mysql -y
-4. JDBC 드라이버 다운로드 (lib 폴더에 위치)
+    - window : choco install gradle --version=8.5 -y
 
 ## 빌드
 - wrapper 파일 생성을 위해 1회 실행
 ```
-$ gradle wrapper --gradle-version 9.2
+$ gradle wrapper --gradle-version 8.5
 ```
 - 생성되는 파일 목록
 ```
