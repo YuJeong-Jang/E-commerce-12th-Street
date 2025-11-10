@@ -30,3 +30,7 @@ Thumbs.db
 
 # 환경설정 파일 (민감 정보)
 src/main/resources/application-local.properties
+
+*.backup
+.gradle/
+tomcat.8080/

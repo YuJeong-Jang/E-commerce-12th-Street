@@ -1,7 +1,7 @@
 // 플러그인 설정
 plugins {
-    id 'java'                    // 자바 플러그인
-    id 'application'             // 애플리케이션 플러그인 (실행 가능한 JAR 생성)
+    id 'java'
+    id 'application'
 }
 
 // 프로젝트 그룹 및 버전
@@ -10,24 +10,33 @@ version = '1.0-SNAPSHOT'
 
 // 자바 버전 설정
 java {
-    sourceCompatibility = '17'   // 소스 코드 자바 버전
-    targetCompatibility = '17'   // 컴파일된 바이트코드 자바 버전
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
 }
 
-// 메인 클래스 지정 (애플리케이션 실행 시 진입점)
+// 메인 클래스 지정 (Embedded Tomcat 실행)
 application {
     mainClass = 'com.commerce.member.Main'
 }
 
 // 의존성 다운로드 저장소
 repositories {
-    mavenCentral()               // Maven 중앙 저장소
+    mavenCentral()
 }
 
 // 프로젝트 의존성
 dependencies {
-    // MySQL JDBC 드라이버
-    implementation 'com.mysql:mysql-connector-j:8.0.33'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.4.1'
+
+    implementation 'org.apache.tomcat.embed:tomcat-embed-core:10.1.20'
+    implementation 'org.apache.tomcat.embed:tomcat-embed-jasper:10.1.20'
+    implementation 'org.apache.tomcat.embed:tomcat-embed-el:10.1.20'
+
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+    compileOnly 'jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.1.0'
+
+    implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'
+    implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1'
 }
 
 // JAR 파일 설정
@@ -63,4 +72,3 @@ tasks.register('fatJar', Jar) {
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
-
