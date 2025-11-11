@@ -1,60 +1,50 @@
-/*
- * 1. 플러그인 설정
- * 'java' - 자바 프로젝트
- * 'war' - .war 파일(웹 애플리케이션)을 만들기 위한 플러그인
- * 'org.gretty' - (핵심) 개발용 내장 톰캣 서버 플러그인
- */
-
 // 플러그인 설정
 plugins {
     id 'java'
     id 'war'
-    id 'org.gretty' version '4.0.3' // Gretty 플러그인 추가
+    id 'org.gretty' version '4.0.3'
 }
 
-// 자바 버전 17 설정
+group = 'com.commerce'
+version = '1.0-SNAPSHOT'
+
+// 자바 버전 17 설정 (주석 처리 유지)
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
-}
+ }
 
-// 라이브러리를 다운로드할 저장소 (Maven 중앙 저장소)
+// 라이브러리를 다운로드할 저장소 (이 부분은 둡니다)
 repositories {
     mavenCentral()
-    gradlePluginPortal() // Gretty가 필요로 하는 부품이 여기 있습니다.
+    gradlePluginPortal()
 }
 
-// 프로젝트 의존성 (가장 중요)
+// 프로젝트 의존성 (이 부분은 둡니다)
 dependencies {
-
     implementation 'mysql:mysql-connector-java:8.0.28'
-
-    // servlet
-    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'  // providedCompile → compileOnly (deprecated)
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
     compileOnly 'jakarta.servlet.jsp:jakarta.servlet.jsp-api:4.0.0'
-   
-    // JSTL 활성화 (JSP에서 <c:forEach> 같은 태그 사용 시, Tomcat 10 호환)
     implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'
     implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.0'
-    
-    // Bcrypt (비밀번호 암호화)
     implementation 'org.mindrot:jbcrypt:0.4'
-
 }
 
-// 인코딩 설정
+// 인코딩 설정 (주석 처리)
 tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8' // 한글 깨짐 방지를 위해 UTF-8 설정
-    options.release = 17  // Java 17 타겟
-}
+     options.encoding = 'UTF-8'
+     options.release = 17
+ }
 
-gretty {
-    contextPath = '/'    // 웹사이트 주소를 http://localhost:8080/ 로 설정
-    httpPort = 8080      // 8080 포트 사용
-    servletContainer = 'tomcat10'  // Tomcat 10 (jakarta 호환)
-    scanInterval = 2000  // 2초마다 변경 감지 (hot reload)
-}
+// gretty 설정 (주석 처리)
+ gretty {
+     contextPath = '/'
+     httpPort = 8080
+     servletContainer = 'tomcat10'
+     scanInterval = 2000
+ }
 
-war {
-    archiveFileName = 'ROOT.war'  // WAR 이름 설정
-}
+// war 설정 (주석 처리)
+ war {
+     archiveFileName = 'ROOT.war'
+ }
