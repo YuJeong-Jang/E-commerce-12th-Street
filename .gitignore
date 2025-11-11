@@ -34,3 +34,4 @@ src/main/resources/application-local.properties
 *.backup
 .gradle/
 tomcat.8080/
+src/main/resources/application.properties

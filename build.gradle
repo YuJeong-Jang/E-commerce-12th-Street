@@ -10,7 +10,7 @@ version = '1.0-SNAPSHOT'
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
-}
+ }
 
 // ./gradlew run 실행 시 com.commerce.member.Main 클래스를 실행
 application {
