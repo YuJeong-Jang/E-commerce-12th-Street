@@ -1,31 +1,52 @@
 package com.commerce.member.model;
 
-import java.sql.Timestamp;
+import java.sql.Date;
 
-// DB의 member 테이블 데이터를 담기 위한 "Data Transfer Object" (데이터 그릇)
+// DBeaver '회원' 테이블 데이터를 담는 Java 객체 (DTO)
 public class MemberDTO {
-    private String username;
-    private String email;
-    private Timestamp createdAt;
+    
+    // DBeaver 스키마 기준 (`회원` 테이블)
+    private int memberSeq;    // 회원일련번호
+    private String memberId;  // 회원아이디
+    private String name;      // 회원명
+    private String phone;     // 연락처
+    private Date rgstYmd;     // 가입일
 
-    // Getter와 Setter (JSP/Servlet에서 데이터를 읽고 쓰기 위해 필수)
-    public String getUsername() {
-        return username;
+    // Getters and Setters
+    
+    // ★★★★★ [오류 수정] BoardServlet이 필요로 하는 getMemberSeq() 추가 ★★★★★
+    public int getMemberSeq() { 
+        return memberSeq; 
     }
-    public void setUsername(String username) {
-        this.username = username;
+    public void setMemberSeq(int memberSeq) { 
+        this.memberSeq = memberSeq; 
     }
-    public String getEmail() {
-        return email;
+
+    public String getMemberId() { 
+        return memberId; 
     }
-    public void setEmail(String email) {
-        this.email = email;
+    public void setMemberId(String memberId) { 
+        this.memberId = memberId; 
     }
-    public Timestamp getCreatedAt() {
-        return createdAt;
+
+    public String getName() { 
+        return name; 
     }
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
+    public void setName(String name) { 
+        this.name = name; 
+    }
+
+    public String getPhone() { 
+        return phone; 
+    }
+    public void setPhone(String phone) { 
+        this.phone = phone; 
+    }
+
+    public Date getRgstYmd() { 
+        return rgstYmd; 
+    }
+    public void setRgstYmd(Date rgstYmd) { 
+        this.rgstYmd = rgstYmd; 
     }
 }
-

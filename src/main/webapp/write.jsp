@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%-- ★★★★★ [오류 수정] Tomcat 9 (javax)용 JSTL uri로 변경 ★★★★★ --%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -19,7 +20,8 @@
             </div>
         </c:if>
 
-        <form action="${pageContext.request.contextPath}/board/write" method="POST">
+        <%-- [수정] /board/write 서블릿을 호출 --%>
+        <form action="${pageContext.request.contextPath}/board.do?action=write" method="POST">
             <div class="mb-3">
                 <label for="title" class="form-label">제목</label>
                 <input type="text" class="form-control" id="title" name="title" required>
@@ -29,7 +31,8 @@
                 <textarea class="form-control" id="contents" name="contents" rows="10" required></textarea>
             </div>
             
-            <a href="${pageContext.request.contextPath}/board/dashboard" class="btn btn-secondary">취소</a>
+            <%-- [수정] /board/dashboard 서블릿을 호출 --%>
+            <a href="${pageContext.request.contextPath}/board.do" class="btn btn-secondary">취소</a>
             <button type="submit" class="btn btn-primary">등록</button>
         </form>
     </div>

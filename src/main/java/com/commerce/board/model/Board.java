@@ -2,18 +2,15 @@ package com.commerce.board.model;
 
 import java.sql.Date; // java.util.Date 대신 SQL과 호환되는 Date 사용
 
+// DBeaver/Workbench '게시판' 테이블 데이터를 담을 Java 객체 (DTO)
 public class Board {
-    private int boardSeq;
-    private int memSeq;
-    private String title;
-    private String contents;
-    private Date rgstYmd;
-    private Date modYmd;
-    private Date delYmd;
-    private boolean delYn;
-
-    // 기본 생성자
-    public Board() {}
+    private int boardSeq;      // 게시판일련번호
+    private int memSeq;        // 회원일련번호
+    private String title;      // 게시판제목
+    private String contents;   // 게시판내용
+    private Date rgstYmd;      // 등록일
+    
+    // (DBeaver 스키마의 나머지 컬럼들은 지금 당장 필요하지 않으므로 생략)
 
     // Getters and Setters
     public int getBoardSeq() { return boardSeq; }
@@ -30,13 +27,4 @@ public class Board {
     
     public Date getRgstYmd() { return rgstYmd; }
     public void setRgstYmd(Date rgstYmd) { this.rgstYmd = rgstYmd; }
-    
-    public Date getModYmd() { return modYmd; }
-    public void setModYmd(Date modYmd) { this.modYmd = modYmd; }
-    
-    public Date getDelYmd() { return delYmd; }
-    public void setDelYmd(Date delYmd) { this.delYmd = delYmd; }
-    
-    public boolean isDelYn() { return delYn; }
-    public void setDelYn(boolean delYn) { this.delYn = delYn; }
 }

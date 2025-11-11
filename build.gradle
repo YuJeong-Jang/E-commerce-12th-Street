@@ -1,50 +1,47 @@
 // 플러그인 설정
 plugins {
     id 'java'
-    id 'war'
-    id 'org.gretty' version '4.0.3'
+    id 'application' // ./gradlew run 을 실행하기 위함
 }
 
+// 프로젝트 설정
 group = 'com.commerce'
 version = '1.0-SNAPSHOT'
-
-// 자바 버전 17 설정 (주석 처리 유지)
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
  }
 
-// 라이브러리를 다운로드할 저장소 (이 부분은 둡니다)
+// ./gradlew run 실행 시 com.commerce.member.Main 클래스를 실행
+application {
+    // 최신 Gradle Groovy 문법
+    mainClass.set('com.commerce.member.Main')
+}
+
+// 라이브러리 다운로드 저장소
 repositories {
     mavenCentral()
-    gradlePluginPortal()
 }
 
-// 프로젝트 의존성 (이 부분은 둡니다)
+// 의존성(라이브러리) 목록
 dependencies {
-    implementation 'mysql:mysql-connector-java:8.0.28'
-    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
-    compileOnly 'jakarta.servlet.jsp:jakarta.servlet.jsp-api:4.0.0'
-    implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'
-    implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.0'
-    implementation 'org.mindrot:jbcrypt:0.4'
+    // 1. 내장 톰캣 (Tier 1/2) - Tomcat 9 (javax)
+    implementation 'org.apache.tomcat.embed:tomcat-embed-core:9.0.83'
+    implementation 'org.apache.tomcat.embed:tomcat-embed-jasper:9.0.83'
+
+    // ★★★★★ [오류 수정] Tomcat 9 (javax)와 호환되는 JSTL 라이브러리
+    implementation 'jstl:jstl:1.2'
+
+    // 2. 데이터베이스 (Tier 3)
+    implementation 'com.mysql:mysql-connector-j:8.0.33' // MySQL 드라이버
+    implementation 'org.mindrot:jbcrypt:0.4' // 비밀번호 암호화
 }
 
-// 인코딩 설정 (주석 처리)
-tasks.withType(JavaCompile) {
-     options.encoding = 'UTF-8'
-     options.release = 17
- }
-
-// gretty 설정 (주석 처리)
- gretty {
-     contextPath = '/'
-     httpPort = 8080
-     servletContainer = 'tomcat10'
-     scanInterval = 2000
- }
-
-// war 설정 (주석 처리)
- war {
-     archiveFileName = 'ROOT.war'
- }
+// Gradle이 src/main/webapp 폴더(JSP 위치)를 빌드에 포함하도록 설정
+sourceSets {
+    main {
+        resources {
+            srcDirs("src/main/webapp")
+        }
+    }
+}
