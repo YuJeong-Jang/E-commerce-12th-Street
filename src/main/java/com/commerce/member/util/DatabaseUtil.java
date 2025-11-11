@@ -8,9 +8,9 @@ public class DatabaseUtil {
     
     // TODO: 여기에 본인의 MySQL DB 연결 정보를 입력하세요.
     // (Docker Compose로 띄울 DB의 정보 또는 로컬 DB 정보)
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/mydb"; // DB 주소 및 DB 이름
-    private static final String DB_USER = "myuser"; // DB 사용자 아이디
-    private static final String DB_PASSWORD = "mypassword"; // DB 비밀번호
+    private static final String DB_URL = "jdbc:mysql://43.203.22.205/streets"; // DB 주소 및 DB 이름
+    private static final String DB_USER = "rapa"; // DB 사용자 아이디
+    private static final String DB_PASSWORD = "1234"; // DB 비밀번호
 
     // DB 커넥션 가져오기
     public static Connection getConnection() throws SQLException {

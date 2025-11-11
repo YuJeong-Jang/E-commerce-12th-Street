@@ -1,49 +1,58 @@
 package com.commerce.member.controller;
 
+// ★★★★★ 스크린샷에 보이는 DAO/DTO 경로로 수정 ★★★★★
 import com.commerce.member.model.MemberDAO;
 import com.commerce.member.model.MemberDTO;
 
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
+/**
+ * 마이페이지(/mypage.do) 요청을 처리하는 서블릿 (Controller)
+ */
 @WebServlet("/mypage.do")
 public class MyPageServlet extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        // 1. 세션에서 로그인 정보 확인
-        HttpSession session = request.getSession(false);
-        String username = null;
+
+        // 1. 세션에서 현재 로그인된 사용자 ID 가져오기
+        HttpSession session = request.getSession(false); 
+        String memberId = null;
+
         if (session != null) {
-            username = (String) session.getAttribute("loggedInUser");
+            memberId = (String) session.getAttribute("loggedInUser");
         }
 
-        if (username == null) {
-            // 2. [실패] 로그인 안 한 사용자 -> 메인 페이지(로그인폼)로 쫓아냄
-            System.out.println("[MyPageServlet] 비로그인 사용자 접근. index.jsp로 리다이렉트");
+        // 2. 로그인 상태 확인
+        if (memberId == null) {
             response.sendRedirect("index.jsp");
+            return; 
+        }
+
+        // 3. (Tier 3: Model) DAO를 통해 DB에서 회원 정보 조회
+        System.out.println("[MyPageServlet] " + memberId + " 님 정보 조회");
+        MemberDAO dao = new MemberDAO();
+        MemberDTO memberInfo = dao.getMemberByUsername(memberId); 
+
+        if (memberInfo == null) {
+            System.err.println("[MyPageServlet] 세션 유저(" + memberId + ")의 DB 정보를 찾을 수 없음");
+            response.sendRedirect("index.jsp?error=2"); 
             return;
         }
 
-        // 3. [성공] 로그인 한 사용자 -> DB에서 정보 조회
-        System.out.println("[MyPageServlet] " + username + " 님 정보 조회");
-        MemberDAO dao = new MemberDAO();
-        MemberDTO memberInfo = dao.getMemberByUsername(username);
-
-        // 4. 조회한 정보를 request 객체에 "memberInfo"라는 이름으로 저장
+        // 4. (Tier 1: View) JSP로 데이터 전달
         request.setAttribute("memberInfo", memberInfo);
 
-        // 5. request 객체를 mypage.jsp (View)로 전달 (forward)
+        // 5. mypage.jsp로 포워딩
         RequestDispatcher dispatcher = request.getRequestDispatcher("mypage.jsp");
         dispatcher.forward(request, response);
     }
 }
-

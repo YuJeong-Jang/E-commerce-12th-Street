@@ -1,60 +1,47 @@
-/*
- * 1. 플러그인 설정
- * 'java' - 자바 프로젝트
- * 'war' - .war 파일(웹 애플리케이션)을 만들기 위한 플러그인
- * 'org.gretty' - (핵심) 개발용 내장 톰캣 서버 플러그인
- */
-
 // 플러그인 설정
 plugins {
     id 'java'
-    id 'war'
-    id 'org.gretty' version '4.0.3' // Gretty 플러그인 추가
+    id 'application' // ./gradlew run 을 실행하기 위함
 }
 
-// 자바 버전 17 설정
+// 프로젝트 설정
+group = 'com.commerce'
+version = '1.0-SNAPSHOT'
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
 
-// 라이브러리를 다운로드할 저장소 (Maven 중앙 저장소)
+// ./gradlew run 실행 시 com.commerce.member.Main 클래스를 실행
+application {
+    // 최신 Gradle Groovy 문법
+    mainClass.set('com.commerce.member.Main')
+}
+
+// 라이브러리 다운로드 저장소
 repositories {
     mavenCentral()
-    gradlePluginPortal() // Gretty가 필요로 하는 부품이 여기 있습니다.
 }
 
-// 프로젝트 의존성 (가장 중요)
+// 의존성(라이브러리) 목록
 dependencies {
-    // maria db
-    implementation 'org.mariadb.jdbc:mariadb-java-client:3.4.1'
+    // 1. 내장 톰캣 (Tier 1/2) - Tomcat 9 (javax)
+    implementation 'org.apache.tomcat.embed:tomcat-embed-core:9.0.83'
+    implementation 'org.apache.tomcat.embed:tomcat-embed-jasper:9.0.83'
 
-    // servlet
-    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'  // providedCompile → compileOnly (deprecated)
-    compileOnly 'jakarta.servlet.jsp:jakarta.servlet.jsp-api:4.0.0'
-   
-    // JSTL 활성화 (JSP에서 <c:forEach> 같은 태그 사용 시, Tomcat 10 호환)
-    implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'
-    implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.0'
-    
-    // Bcrypt (비밀번호 암호화)
-    implementation 'org.mindrot:jbcrypt:0.4'
+    // ★★★★★ [오류 수정] Tomcat 9 (javax)와 호환되는 JSTL 라이브러리
+    implementation 'jstl:jstl:1.2'
 
+    // 2. 데이터베이스 (Tier 3)
+    implementation 'com.mysql:mysql-connector-j:8.0.33' // MySQL 드라이버
+    implementation 'org.mindrot:jbcrypt:0.4' // 비밀번호 암호화
 }
 
-// 인코딩 설정
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8' // 한글 깨짐 방지를 위해 UTF-8 설정
-    options.release = 17  // Java 17 타겟
-}
-
-gretty {
-    contextPath = '/'    // 웹사이트 주소를 http://localhost:8080/ 로 설정
-    httpPort = 8080      // 8080 포트 사용
-    servletContainer = 'tomcat10'  // Tomcat 10 (jakarta 호환)
-    scanInterval = 2000  // 2초마다 변경 감지 (hot reload)
-}
-
-war {
-    archiveFileName = 'ROOT.war'  // WAR 이름 설정
+// Gradle이 src/main/webapp 폴더(JSP 위치)를 빌드에 포함하도록 설정
+sourceSets {
+    main {
+        resources {
+            srcDirs("src/main/webapp")
+        }
+    }
 }

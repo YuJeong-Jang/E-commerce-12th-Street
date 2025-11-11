@@ -1,65 +1,67 @@
 package com.commerce.board.servlet;
 
-import com.commerce.board.dao.BoardDao;
+import com.commerce.board.dao.BoardDAO;
 import com.commerce.board.model.Board;
+// ★★★★★ [수정] MemberDAO/DTO의 올바른 경로 import ★★★★★
+import com.commerce.member.model.MemberDAO;
+import com.commerce.member.model.MemberDTO;
 
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+// ★★★★★ [수정] Tomcat 9 (javax)용 서블릿으로 변경
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession; // 세션 사용을 위해 임포트
 
 import java.io.IOException;
 import java.util.List;
 
-// URL 패턴을 /board/* 로 매핑
-@WebServlet(name = "boardServlet", urlPatterns = "/board/*")
+@WebServlet(name = "boardServlet", urlPatterns = "/board.do")
 public class BoardServlet extends HttpServlet {
 
-    private BoardDao boardDao;
+    private BoardDAO boardDao;
 
     @Override
     public void init() throws ServletException {
-        // 서블릿 초기화 시 DAO 인스턴스 생성
-        this.boardDao = new BoardDao();
+        this.boardDao = new BoardDAO();
     }
 
+    // GET 요청 처리 (목록 보기, 글쓰기 폼)
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        String pathInfo = req.getPathInfo();
-        if (pathInfo == null) {
-            pathInfo = "/dashboard"; // 기본 경로
+        String action = req.getParameter("action");
+        if (action == null) {
+            action = "list"; // 기본값
         }
 
-        switch (pathInfo) {
-            case "/dashboard":
-                showDashboard(req, res); // 게시판 목록 (dashbord.jsp)
-                break;
-            case "/write":
+        switch (action) {
+            case "writeForm":
                 showWriteForm(req, res); // 글쓰기 폼 (write.jsp)
                 break;
-            // TODO: /view, /edit 등 상세/수정 페이지 라우팅 구현
+            case "list":
             default:
-                res.sendError(HttpServletResponse.SC_NOT_FOUND);
+                showDashboard(req, res); // 게시판 목록 (dashboard.jsp)
+                break;
         }
     }
 
+    // POST 요청 처리 (글쓰기, 수정, 삭제)
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        String pathInfo = req.getPathInfo();
+        String action = req.getParameter("action");
         
-        // POST 요청도 인코딩 UTF-8 설정
         req.setCharacterEncoding("UTF-8");
 
-        switch (pathInfo) {
-            case "/write":
+        switch (action) {
+            case "write":
                 handleWritePost(req, res); // 글쓰기 처리
                 break;
-            case "/edit":
+            case "edit":
                 handleEditPost(req, res); // 수정 처리
                 break;
-            case "/delete":
+            case "delete":
                 handleDeletePost(req, res); // 삭제 처리
                 break;
             default:
@@ -67,8 +69,9 @@ public class BoardServlet extends HttpServlet {
         }
     }
 
-    // GET /board/dashboard
+    // GET /board.do (또는 /board.do?action=list)
     private void showDashboard(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        System.out.println("[BoardServlet] /board.do (list) GET 요청 수신");
         List<Board> boardList = boardDao.getBoardList();
         req.setAttribute("boardList", boardList);
         
@@ -76,43 +79,58 @@ public class BoardServlet extends HttpServlet {
         dispatcher.forward(req, res);
     }
 
-    // GET /board/write
+    // GET /board.do?action=writeForm
     private void showWriteForm(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        System.out.println("[BoardServlet] /board.do?action=writeForm GET 요청 수신");
         RequestDispatcher dispatcher = req.getRequestDispatcher("/write.jsp");
         dispatcher.forward(req, res);
     }
 
-    // POST /board/write
+    // POST /board.do?action=write
     private void handleWritePost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        // 요청 인코딩 설정 (JSP에서 UTF-8로 넘어오도록 설정)
-        // -> doPost 상단에서 공통 처리
-        // req.setCharacterEncoding("UTF-8"); 
-
+        System.out.println("[BoardServlet] /board.do?action=write POST 요청 수신");
+        
         String title = req.getParameter("title");
         String contents = req.getParameter("contents");
         
-        // TODO: 실제로는 세션에서 로그인한 회원 memSeq를 가져와야 함
-        int mockMemSeq = 1; // 임시 회원 ID
+        HttpSession session = req.getSession(false);
+        if (session == null || session.getAttribute("loggedInUser") == null) {
+            res.sendRedirect("index.jsp"); // 로그인이 안되어있으면 튕겨냄
+            return;
+        }
+        
+        // ★★★★★ [오류 수정] MemberDAO/MemberDTO 사용 ★★★★★
+        MemberDAO memberDao = new MemberDAO(); 
+        String memberId = (String) session.getAttribute("loggedInUser");
+        MemberDTO member = memberDao.getMemberByUsername(memberId);
+        
+        if (member == null) {
+            System.err.println("[BoardServlet] 세션 유저 " + memberId + "의 회원일련번호(memSeq)를 찾을 수 없음");
+            res.sendRedirect("index.jsp?error=2");
+            return;
+        }
+        
+        // ★★★★★ [오류 수정] member 객체에서 getMemberSeq() 호출 ★★★★★
+        int memSeq = member.getMemberSeq(); 
 
         Board board = new Board();
         board.setTitle(title);
         board.setContents(contents);
-        board.setMemSeq(mockMemSeq);
+        board.setMemSeq(memSeq); // 실제 세션의 회원일련번호(memSeq) 사용
 
         boolean success = boardDao.insertBoard(board);
 
         if (success) {
-            // 등록 성공 시 목록 페이지로 리다이렉트
-            res.sendRedirect(req.getContextPath() + "/board/dashboard");
+            res.sendRedirect(req.getContextPath() + "/board.do");
         } else {
-            // 실패 시 에러 메시지와 함께 다시 작성 폼으로
             req.setAttribute("errorMessage", "게시글 등록에 실패했습니다.");
             showWriteForm(req, res);
         }
     }
 
-    // POST /board/edit
+    // POST /board.do?action=edit
     private void handleEditPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        System.out.println("[BoardServlet] /board.do?action=edit POST 요청 수신");
         try {
             int boardSeq = Integer.parseInt(req.getParameter("boardSeq"));
             String title = req.getParameter("title");
@@ -124,27 +142,24 @@ public class BoardServlet extends HttpServlet {
             board.setContents(contents);
             
             // TODO: 수정 권한 검사 (로그인한 사용자와 작성자가 같은지)
-
             boardDao.updateBoard(board);
             
         } catch (NumberFormatException e) {
-            // boardSeq 파라미터가 숫자가 아닐 경우
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
         
-        // 처리 후 대시보드로 리다이렉트
-        res.sendRedirect(req.getContextPath() + "/board/dashboard");
+        res.sendRedirect(req.getContextPath() + "/board.do");
     }
     
-    // POST /board/delete
+    // POST /board.do?action=delete
     private void handleDeletePost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        System.out.println("[BoardServlet] /board.do?action=delete POST 요청 수신");
         try {
             int boardSeq = Integer.parseInt(req.getParameter("boardSeq"));
             
             // TODO: 삭제 권한 검사
-
             boardDao.deleteBoard(boardSeq);
 
         } catch (NumberFormatException e) {
@@ -153,7 +168,6 @@ public class BoardServlet extends HttpServlet {
             e.printStackTrace();
         }
         
-        // 처리 후 대시보드로 리다이렉트
-        res.sendRedirect(req.getContextPath() + "/board/dashboard");
+        res.sendRedirect(req.getContextPath() + "/board.do");
     }
 }

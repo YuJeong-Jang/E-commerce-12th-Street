@@ -1,55 +1,60 @@
 package com.commerce.board.dao;
 
-import com.commerce.board.model.Board;
-import com.commerce.db.DbConnection;
+// ★★★★★ [오류 2 해결] DB 연결 클래스의 올바른 경로로 수정
+import com.commerce.member.util.DatabaseUtil; 
+import com.commerce.board.model.Board; // 스크린샷의 DTO 파일 이름 'Board.java'
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Date; // java.sql.Date 사용
 import java.util.ArrayList;
 import java.util.List;
 
-public class BoardDao {
+// ★★★★★ [오류 3 해결] 클래스 문법 수정 (파일 끝 중복 코드 제거)
+public class BoardDAO { 
 
     /**
-     * 게시판 목록 조회 (dashboard.jsp)
+     * '게시판'의 모든 글 목록을 조회합니다. (삭제유무 0인 것만)
+     * @return 게시글 DTO 리스트
      */
-    public List<Board> getBoardList() {
-        List<Board> boardList = new ArrayList<>();
-        // ERD의 rgstYmd (등록일) 기준으로 내림차순 정렬
-        String sql = "SELECT boardSeq, memSeq, title, contents, rgstYmd FROM Board WHERE delYn = false ORDER BY rgstYmd DESC";
+    public List<Board> getBoardList() { 
+        
+        // DBeaver 스키마의 한글 컬럼명 사용
+        String sql = "SELECT 게시판일련번호, 회원일련번호, 게시판제목, 등록일 " +
+                     "FROM 게시판 WHERE 삭제유무 = 0 ORDER BY 게시판일련번호 DESC";
+        
+        List<Board> list = new ArrayList<>();
 
-        try (Connection conn = DbConnection.getConnection();
+        // ★★★★★ [오류 2 해결] DB 연결 클래스 이름 수정
+        try (Connection conn = DatabaseUtil.getConnection(); 
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
-                Board board = new Board();
-                board.setBoardSeq(rs.getInt("boardSeq"));
-                board.setMemSeq(rs.getInt("memSeq"));
-                board.setTitle(rs.getString("title"));
-                board.setContents(rs.getString("contents"));
-                board.setRgstYmd(rs.getDate("rgstYmd"));
-                boardList.add(board);
+                Board board = new Board(); 
+                board.setBoardSeq(rs.getInt("게시판일련번호"));
+                board.setMemSeq(rs.getInt("회원일련번호")); 
+                board.setTitle(rs.getString("게시판제목"));
+                board.setRgstYmd(rs.getDate("등록일"));
+                list.add(board);
             }
         } catch (Exception e) {
+            System.err.println("[BoardDAO] getBoardList 실패: " + e.getMessage());
             e.printStackTrace();
         }
-        return boardList;
+        return list;
     }
 
-    /**
-     * 게시글 등록 (write.jsp에서 사용)
-     */
+    // DBeaver 스키마에 맞게 수정한 insertBoard
     public boolean insertBoard(Board board) {
-        // boardSeq는 auto-increment, delYn은 default false 가정
-        // rgstYmd, modYmd는 DB에서 NOW() 또는 SYSDATE() 사용
-        String sql = "INSERT INTO Board (memSeq, title, contents, rgstYmd, modYmd) VALUES (?, ?, ?, NOW(), NOW())";
+        String sql = "INSERT INTO 게시판 (회원일련번호, 게시판제목, 게시판내용, 등록일, 수정일, 삭제유무) " +
+                     "VALUES (?, ?, ?, NOW(), NOW(), 0)";
 
-        try (Connection conn = DbConnection.getConnection();
+        try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
-            pstmt.setInt(1, board.getMemSeq()); // TODO: 실제로는 세션에서 회원 ID를 가져와야 함
+            pstmt.setInt(1, board.getMemSeq()); 
             pstmt.setString(2, board.getTitle());
             pstmt.setString(3, board.getContents());
 
@@ -57,18 +62,17 @@ public class BoardDao {
             return rowsAffected > 0;
 
         } catch (Exception e) {
+            System.err.println("[BoardDAO] insertBoard 실패: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
     
-    /**
-     * 게시글 수정 (dashboard.jsp의 모달에서 사용)
-     */
+    // DBeaver 스키마에 맞게 수정한 updateBoard
     public boolean updateBoard(Board board) {
-        String sql = "UPDATE Board SET title = ?, contents = ?, modYmd = NOW() WHERE boardSeq = ?";
+        String sql = "UPDATE 게시판 SET 게시판제목 = ?, 게시판내용 = ?, 수정일 = NOW() WHERE 게시판일련번호 = ?";
 
-        try (Connection conn = DbConnection.getConnection();
+        try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, board.getTitle());
@@ -79,18 +83,17 @@ public class BoardDao {
             return rowsAffected > 0;
 
         } catch (Exception e) {
+            System.err.println("[BoardDAO] updateBoard 실패: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
 
-    /**
-     * 게시글 삭제 (논리적 삭제: delYn = true로 변경)
-     */
+    // DBeaver 스키마에 맞게 수정한 deleteBoard (논리적 삭제)
     public boolean deleteBoard(int boardSeq) {
-        String sql = "UPDATE Board SET delYn = true, delYmd = NOW() WHERE boardSeq = ?";
+        String sql = "UPDATE 게시판 SET 삭제유무 = 1, 삭제일 = NOW() WHERE 게시판일련번호 = ?";
 
-        try (Connection conn = DbConnection.getConnection();
+        try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setInt(1, boardSeq);
@@ -99,6 +102,7 @@ public class BoardDao {
             return rowsAffected > 0;
 
         } catch (Exception e) {
+            System.err.println("[BoardDAO] deleteBoard 실패: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

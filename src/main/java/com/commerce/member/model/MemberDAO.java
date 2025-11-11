@@ -6,76 +6,91 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.Date; // java.sql.Timestamp 대신 Date 사용
 
-// DAO (Data Access Object)
-// 오직 DB 관련 로직만 처리합니다. (Tier 3)
 public class MemberDAO {
 
-    // 회원가입 (DB에 INSERT)
-    public boolean register(String username, String hashedPassword, String email) {
-        String sql = "INSERT INTO member (username, password, email) VALUES (?, ?, ?)";
+    /**
+     * 회원가입 (Tier 3)
+     * @param memberId 사용자가 입력한 아이디
+     * @param hashedPassword 암호화된 비밀번호
+     * @param name 사용자 이름
+     * @param phone 연락처
+     * @return 성공 시 true, 실패 시 false
+     */
+    public boolean register(String memberId, String hashedPassword, String name, String phone) {
+        // DBeaver 스키마 (한글 컬럼명) 기준 SQL
+        String sql = "INSERT INTO 회원 (회원아이디, 비밀번호, 회원명, 연락처, 가입일, 탈퇴유무) VALUES (?, ?, ?, ?, CURDATE(), 0)";
         
-        // try-with-resources (자동으로 Connection, PreparedStatement 종료)
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, username);
-            pstmt.setString(2, hashedPassword); // 암호화된 비밀번호 저장
-            pstmt.setString(3, email);
-            
+
+            pstmt.setString(1, memberId);
+            pstmt.setString(2, hashedPassword);
+            pstmt.setString(3, name);
+            pstmt.setString(4, phone);
+
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
-            
-        } catch (SQLException e) {
-            // 아이디 중복(UNIQUE 제약 위반) 등
-            System.err.println("[MemberDAO.register] SQL 오류: " + e.getMessage());
+
+        } catch (Exception e) {
+            System.err.println("[MemberDAO] register 실패: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
 
-    // 로그인 (DB에서 SELECT 및 비밀번호 비교)
-    public boolean login(String username, String plainPassword) {
-        String sql = "SELECT password FROM member WHERE username = ?";
+    /**
+     * 로그인 (Tier 3)
+     * @param memberId 사용자가 입력한 아이디
+     * @param plainPassword 사용자가 입력한 원본 비밀번호
+     * @return 성공 시 true, 실패 시 false
+     */
+    public boolean login(String memberId, String plainPassword) {
+        // DBeaver 스키마 (한글 컬럼명) 기준 SQL
+        String sql = "SELECT 비밀번호 FROM 회원 WHERE 회원아이디 = ? AND 탈퇴유무 = 0";
         
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, username);
-            
+
+            pstmt.setString(1, memberId);
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    // DB에 저장된 암호화된 비밀번호
-                    String hashedPassword = rs.getString("password");
-                    
-                    // Bcrypt로 입력된 비밀번호와 DB의 해시 비교
+                    String hashedPassword = rs.getString("비밀번호");
+                    // DB에 저장된 해시값과 입력된 평문 비밀번호를 비교
                     return BCrypt.checkpw(plainPassword, hashedPassword);
-                } else {
-                    // 해당 아이디 없음
-                    return false;
                 }
             }
-            
-        } catch (SQLException e) {
-            System.err.println("[MemberDAO.login] SQL 오류: " + e.getMessage());
-            return false;
+        } catch (Exception e) {
+            System.err.println("[MemberDAO] login 실패: " + e.getMessage());
+            e.printStackTrace();
         }
+        return false;
     }
-	public MemberDTO getMemberByUsername(String username) {
-        String sql = "SELECT username, email, created_at FROM member WHERE username = ?";
+
+    /**
+     * 마이페이지 정보 조회 (Tier 3)
+     * @param memberId 세션에 저장된 사용자 아이디
+     * @return 회원 정보가 담긴 DTO 객체 (없으면 null)
+     */
+    public MemberDTO getMemberByUsername(String memberId) {
+        // DBeaver 스키마 (한글 컬럼명) 기준 SQL
+        String sql = "SELECT 회원아이디, 회원명, 연락처, 가입일 FROM 회원 WHERE 회원아이디 = ?";
         MemberDTO member = null;
 
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, username);
-
+            pstmt.setString(1, memberId);
+            
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     member = new MemberDTO();
-                    member.setUsername(rs.getString("username"));
-                    member.setEmail(rs.getString("email"));
-                    member.setCreatedAt(rs.getTimestamp("created_at"));
+                    member.setMemberId(rs.getString("회원아이디"));
+                    member.setName(rs.getString("회원명"));
+                    member.setPhone(rs.getString("연락처"));
+                    member.setRgstYmd(rs.getDate("가입일")); // Timestamp 대신 Date 사용
                 }
             }
         } catch (Exception e) {
@@ -85,4 +100,3 @@ public class MemberDAO {
         return member;
     }
 }
-

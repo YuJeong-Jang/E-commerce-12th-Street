@@ -1,32 +1,82 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
+<%-- ★★★★★ Tomcat 9 (javax)용 JSTL uri ★★★★★ --%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<%
+    // MyPageServlet에서 redirect 시켰는지 확인 (보안)
+    // 서블릿을 거치지 않고 mypage.jsp로 직접 접근하면 memberInfo가 null입니다.
+    if (request.getAttribute("memberInfo") == null) {
+        // 세션이 유효한지 다시 한번 확인 (더블 체크)
+        if (session.getAttribute("loggedInUser") == null) {
+            // 세션도 없으면 로그인 페이지로 쫓아냄
+            response.sendRedirect("index.jsp");
+            return;
+        } else {
+            // 세션은 있지만 정보가 없으면, 서블릿을 강제로 거치도록 함
+            response.sendRedirect("mypage.do");
+            return;
+        }
+    }
+%>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>마이 페이지</title>
+    <!-- 부트스트랩 CSS CDN 링크 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h2>마이 페이지</h2>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h2 class="mb-0">마이 페이지</h2>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            환영합니다, <c:out value="${memberInfo.name}" /> 님!
+                        </h5>
+                        <p class="card-text">회원님의 정보를 확인하세요.</p>
+                        
+                        <hr>
+                        
+                        <%-- 회원 정보를 List Group으로 깔끔하게 표시 --%>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>아이디:</strong>
+                                <c:out value="${memberInfo.memberId}" />
+                            </li>
+                            <li class="list-group-item">
+                                <strong>이름:</strong>
+                                <c:out value="${memberInfo.name}" />
+                            </li>
+                            <li class="list-group-item">
+                                <strong>연락처:</strong>
+                                <c:out value="${memberInfo.phone}" />
+                            </li>
+                            <li class="list-group-item">
+                                <strong>가입일:</strong>
+                                <%-- DTO의 Date 객체를 yyyy-MM-dd 형식으로 포맷팅 --%>
+                                <fmt:formatDate value="${memberInfo.rgstYmd}" pattern="yyyy년 MM월 dd일" />
+                            </li>
+                        </ul>
 
-    <%-- 
-        MyPageServlet이 request.setAttribute("memberInfo", ...);로
-        저장한 회원 정보를 여기서 꺼내서 사용합니다.
-    --%>
-    <div>
-        <strong>아이디:</strong>
-        <span>${requestScope.memberInfo.username}</span>
-    </div>
-    <div>
-        <strong>이메일:</strong>
-        <span>${requestScope.memberInfo.email}</span>
-    </div>
-    <div>
-        <strong>가입일:</strong>
-        <span>${requestScope.memberInfo.createdAt}</span>
+                        <br>
+                        <a href="index.jsp" class="btn btn-primary">메인으로 돌아가기</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
 
-    <br>
-    <a href="index.jsp">메인으로 돌아가기</a>
+    <!-- 부트스트랩 JS CDN 링크 (필요시) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
