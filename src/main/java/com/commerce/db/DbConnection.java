@@ -8,13 +8,14 @@ import java.util.Properties;
 
 /**
  * application.properties 파일에서 DB 정보를 읽어
- * MariaDB 커넥션을 제공하는 유틸리티 클래스
+ * MySQL 커넥션을 제공하는 유틸리티 클래스 (수정됨)
  */
 public class DbConnection {
     
     // DB 설정을 저장할 Properties 객체
     private static Properties properties = new Properties();
-    private static String DB_DRIVER = "org.mariadb.jdbc.Driver";
+    // MariaDB 드라이버 대신 MySQL 드라이버로 변경
+    private static String DB_DRIVER = "com.mysql.cj.jdbc.Driver"; // "org.mariadb.jdbc.Driver"
 
     // static 블록: 클래스가 로드될 때 한 번만 실행됨
     static {
@@ -29,11 +30,11 @@ public class DbConnection {
                 properties.load(input);
             }
             
-            // 2. MariaDB JDBC 드라이버 로드
+            // 2. MySQL JDBC 드라이버 로드 (수정됨)
             Class.forName(DB_DRIVER);
             
         } catch (ClassNotFoundException e) {
-            System.err.println("MariaDB JDBC 드라이버를 찾을 수 없습니다.");
+            System.err.println("MySQL JDBC 드라이버를 찾을 수 없습니다."); // "MariaDB" -> "MySQL"
             throw new RuntimeException("드라이버 로드 실패", e);
         } catch (Exception e) {
             System.err.println("DB 설정 파일 로드 중 오류 발생");
