@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=UTF-8" language="java" %>
+<%@ page contentType="text/html; charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <%
     // 1. 세션에서 로그인 정보 확인
     String username = (String) session.getAttribute("loggedInUser"); // 서블릿이 저장한 이름
@@ -18,6 +18,21 @@
 <body>
     <div class="container mt-5">
         <div class="row">
+            <%
+                // 3. 세션 정보(username)에 따라 분기
+                if (username == null) {
+                    // [A] 로그아웃 상태: 환영인사 표시
+            %>
+            <div class="col-md-8">
+                <div class="p-4">
+                    <h1>E-commerce 12th Street</h1>
+                    <h2 class="mt-4">어서오세요! 환영합니다.</h2> 
+                </div>
+            </div>
+            <%
+                } else {
+                    // [B] 로그인 상태: 게시판 표시
+            %>
             <!-- ========================== -->
             <!--  1. 메인 컨텐츠 (게시판)  -->
             <!-- ========================== -->
@@ -34,7 +49,9 @@
                     </ul>
                 </div>
             </div>
-
+            <%
+                } // 로그인 했을때만 게시판 감
+            %>
             <!-- ========================== -->
             <!--  2. 사이드바 (로그인/정보) -->
             <!-- ========================== -->

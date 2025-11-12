@@ -1,6 +1,6 @@
 package com.commerce.member.model;
 
-import com.commerce.member.util.DatabaseUtil;
+import com.commerce.database.DatabaseUtil;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
@@ -20,7 +20,7 @@ public class MemberDAO {
      */
     public boolean register(String memberId, String hashedPassword, String name, String phone) {
         // DBeaver 스키마 (한글 컬럼명) 기준 SQL
-        String sql = "INSERT INTO 회원 (회원아이디, 비밀번호, 회원명, 연락처, 가입일, 탈퇴유무) VALUES (?, ?, ?, ?, CURDATE(), 0)";
+        String sql = "INSERT INTO Member (memberId, pwd, name, phone, rgstYmd, delYn) VALUES (?, ?, ?, ?, CURDATE(), 0)";
         
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -48,8 +48,8 @@ public class MemberDAO {
      */
     public boolean login(String memberId, String plainPassword) {
         // DBeaver 스키마 (한글 컬럼명) 기준 SQL
-        String sql = "SELECT 비밀번호 FROM 회원 WHERE 회원아이디 = ? AND 탈퇴유무 = 0";
-        
+        String sql = "SELECT pwd FROM Member WHERE memberId = ? AND delYn = 0";
+
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -57,7 +57,7 @@ public class MemberDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    String hashedPassword = rs.getString("비밀번호");
+                    String hashedPassword = rs.getString("pwd");
                     // DB에 저장된 해시값과 입력된 평문 비밀번호를 비교
                     return BCrypt.checkpw(plainPassword, hashedPassword);
                 }
@@ -76,7 +76,7 @@ public class MemberDAO {
      */
     public MemberDTO getMemberByUsername(String memberId) {
         // DBeaver 스키마 (한글 컬럼명) 기준 SQL
-        String sql = "SELECT 회원아이디, 회원명, 연락처, 가입일 FROM 회원 WHERE 회원아이디 = ?";
+        String sql = "SELECT memSeq, memberId, name, phone, rgstYmd FROM Member WHERE memberId = ?";
         MemberDTO member = null;
 
         try (Connection conn = DatabaseUtil.getConnection();
@@ -87,10 +87,11 @@ public class MemberDAO {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     member = new MemberDTO();
-                    member.setMemberId(rs.getString("회원아이디"));
-                    member.setName(rs.getString("회원명"));
-                    member.setPhone(rs.getString("연락처"));
-                    member.setRgstYmd(rs.getDate("가입일")); // Timestamp 대신 Date 사용
+                    member.setMemberId(rs.getString("memberId"));
+                    member.setName(rs.getString("name"));
+                    member.setPhone(rs.getString("phone"));
+                    member.setRgstYmd(rs.getDate("rgstYmd")); // Timestamp 대신 Date 사용
+                    member.setMemSeq(rs.getInt("memSeq"));
                 }
             }
         } catch (Exception e) {

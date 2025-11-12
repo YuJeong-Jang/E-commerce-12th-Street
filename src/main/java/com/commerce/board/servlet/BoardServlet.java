@@ -6,14 +6,14 @@ import com.commerce.board.model.Board;
 import com.commerce.member.model.MemberDAO;
 import com.commerce.member.model.MemberDTO;
 
-// ★★★★★ [수정] Tomcat 9 (javax)용 서블릿으로 변경
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession; // 세션 사용을 위해 임포트
+// ★★★★★ [수정] Tomcat 9 (jakarta)용 서블릿으로 변경
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession; // 세션 사용을 위해 임포트
 
 import java.io.IOException;
 import java.util.List;
@@ -44,6 +44,9 @@ public class BoardServlet extends HttpServlet {
             default:
                 showDashboard(req, res); // 게시판 목록 (dashboard.jsp)
                 break;
+            case "delete":
+                handleDelete(req, res); // 삭제 처리
+                break;
         }
     }
 
@@ -60,9 +63,6 @@ public class BoardServlet extends HttpServlet {
                 break;
             case "edit":
                 handleEditPost(req, res); // 수정 처리
-                break;
-            case "delete":
-                handleDeletePost(req, res); // 삭제 처리
                 break;
             default:
                 res.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -84,6 +84,24 @@ public class BoardServlet extends HttpServlet {
         System.out.println("[BoardServlet] /board.do?action=writeForm GET 요청 수신");
         RequestDispatcher dispatcher = req.getRequestDispatcher("/write.jsp");
         dispatcher.forward(req, res);
+    }
+
+    // GET /board.do?action=delete
+    private void handleDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        System.out.println("[BoardServlet] /board.do?action=delete GET 요청 수신");
+        try {
+            int boardSeq = Integer.parseInt(req.getParameter("seq"));
+            System.out.println(boardSeq);
+            // TODO: 삭제 권한 검사
+            boardDao.deleteBoard(boardSeq);
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        res.sendRedirect(req.getContextPath() + "/board.do");
     }
 
     // POST /board.do?action=write
@@ -109,9 +127,9 @@ public class BoardServlet extends HttpServlet {
             res.sendRedirect("index.jsp?error=2");
             return;
         }
-        
-        // ★★★★★ [오류 수정] member 객체에서 getMemberSeq() 호출 ★★★★★
-        int memSeq = member.getMemberSeq(); 
+
+        // ★★★★★ [오류 수정] member 객체에서 getMemSeq() 호출 ★★★★★
+        int memSeq = member.getMemSeq(); 
 
         Board board = new Board();
         board.setTitle(title);
@@ -132,10 +150,11 @@ public class BoardServlet extends HttpServlet {
     private void handleEditPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         System.out.println("[BoardServlet] /board.do?action=edit POST 요청 수신");
         try {
+            req.setCharacterEncoding("UTF-8");
             int boardSeq = Integer.parseInt(req.getParameter("boardSeq"));
             String title = req.getParameter("title");
             String contents = req.getParameter("contents");
-
+            System.out.println(contents);
             Board board = new Board();
             board.setBoardSeq(boardSeq);
             board.setTitle(title);
@@ -153,21 +172,4 @@ public class BoardServlet extends HttpServlet {
         res.sendRedirect(req.getContextPath() + "/board.do");
     }
     
-    // POST /board.do?action=delete
-    private void handleDeletePost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        System.out.println("[BoardServlet] /board.do?action=delete POST 요청 수신");
-        try {
-            int boardSeq = Integer.parseInt(req.getParameter("boardSeq"));
-            
-            // TODO: 삭제 권한 검사
-            boardDao.deleteBoard(boardSeq);
-
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        res.sendRedirect(req.getContextPath() + "/board.do");
-    }
 }

@@ -6,7 +6,7 @@ import java.sql.Date;
 public class MemberDTO {
     
     // DBeaver 스키마 기준 (`회원` 테이블)
-    private int memberSeq;    // 회원일련번호
+    private int memSeq;    // 회원일련번호
     private String memberId;  // 회원아이디
     private String name;      // 회원명
     private String phone;     // 연락처
@@ -14,12 +14,12 @@ public class MemberDTO {
 
     // Getters and Setters
     
-    // ★★★★★ [오류 수정] BoardServlet이 필요로 하는 getMemberSeq() 추가 ★★★★★
-    public int getMemberSeq() { 
-        return memberSeq; 
+    // ★★★★★ [오류 수정] BoardServlet이 필요로 하는 getMemSeq() 추가 ★★★★★
+    public int getMemSeq() { 
+        return memSeq; 
     }
-    public void setMemberSeq(int memberSeq) { 
-        this.memberSeq = memberSeq; 
+    public void setMemSeq(int memSeq) { 
+        this.memSeq = memSeq; 
     }
 
     public String getMemberId() { 
