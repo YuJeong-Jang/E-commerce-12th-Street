@@ -39,7 +39,7 @@ gretty {
     httpPort = 8080      // 8080 포트 사용
     servletContainer = 'tomcat10'  // Tomcat 10 (jakarta 호환)
     scanInterval = 1000  // 1초마다 변경 감지 (hot reload)
-}
+    }
 
 war {
     archiveFileName = 'streets.war'  // WAR 이름 설정
