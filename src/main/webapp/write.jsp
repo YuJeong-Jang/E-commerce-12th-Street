@@ -1,44 +1,30 @@
-<%@ page contentType="text/html; charset=UTF-8" language="java" pageEncoding="UTF-8" %>
-    <%-- ★★★★★ [오류 수정] Tomcat 9 (jakarta)용 JSTL uri로 변경 ★★★★★ --%>
-        <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ include file="header.jsp" %>
+    <div class="container mt-5">
+        <h1>새 게시글 작성</h1>
 
-            <!DOCTYPE html>
-            <html lang="ko">
+        <c:if test="${not empty errorMessage}">
+            <div class="alert alert-danger" role="alert">
+                ${errorMessage}
+            </div>
+        </c:if>
 
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>게시글 작성</title>
-                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-            </head>
-
-            <body>
-                <div class="container mt-5">
-                    <h1>새 게시글 작성</h1>
-
-                    <c:if test="${not empty errorMessage}">
-                        <div class="alert alert-danger" role="alert">
-                            ${errorMessage}
-                        </div>
-                    </c:if>
-
-                    <%-- [수정] /board/write 서블릿을 호출 --%>
-                        <form action="${pageContext.request.contextPath}/board.do?action=write" method="POST">
-                            <div class="mb-3">
-                                <label for="title" class="form-label">제목</label>
-                                <input type="text" class="form-control" id="title" name="title" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="contents" class="form-label">내용</label>
-                                <textarea class="form-control" id="contents" name="contents" rows="10"
-                                    required></textarea>
-                            </div>
-
-                            <%-- [수정] /board/dashboard 서블릿을 호출 --%>
-                                <a href="${pageContext.request.contextPath}/board.do" class="btn btn-secondary">취소</a>
-                                <button type="submit" class="btn btn-primary">등록</button>
-                        </form>
+        <%-- [수정] /board/write 서블릿을 호출 --%>
+            <form action="${pageContext.request.contextPath}/board.do?action=write" method="POST">
+                <div class="mb-3">
+                    <label for="title" class="form-label">제목</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
                 </div>
-            </body>
+                <div class="mb-3">
+                    <label for="contents" class="form-label">내용</label>
+                    <textarea class="form-control" id="contents" name="contents" rows="10" required></textarea>
+                </div>
 
-            </html>
+                <%-- [수정] /board/dashboard 서블릿을 호출 --%>
+                    <a href="${pageContext.request.contextPath}/board.do" class="btn btn-secondary">취소</a>
+                    <button type="submit" class="btn btn-primary">등록</button>
+            </form>
+    </div>
+    </body>
+
+    </html>

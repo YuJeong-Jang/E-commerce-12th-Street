@@ -42,5 +42,5 @@ gretty {
 }
 
 war {
-    archiveFileName = 'ROOT.war'  // WAR 이름 설정
+    archiveFileName = 'streets.war'  // WAR 이름 설정
 }
