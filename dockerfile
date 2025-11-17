@@ -43,6 +43,7 @@ RUN $JAVA_HOME/bin/jlink \
 # === 3단계: 최종 (Final Stage) ===
 FROM alpine:latest AS final
 
+# 날짜/시간 포맷팅(JSP)을 위한 타임존 데이터 설치
 RUN apk add --no-cache tzdata
 
 WORKDIR /app

@@ -1,0 +1,28 @@
+# Docker 자체 파일
+dockerfile
+.dockerignore
+
+# Git 히스토리 및 설정
+.git/
+.gitignore
+
+# Gradle 캐시 및 빌드 결과물
+# (이것들이 도커 빌드 컨텍스트에 포함되지 않아야 빌드 속도가 빨라집니다)
+.gradle/
+build/
+
+# IDE 및 OS 특화 파일
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+.DS_Store
+Thumbs.db
+
+# 로그 파일
+*.log
+
+# 문서 (빌드에 불필요)
+README.md
