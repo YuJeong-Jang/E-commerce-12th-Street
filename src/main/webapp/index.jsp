@@ -13,7 +13,7 @@
                                 "어서오세요! 환영합니다."
                             </h2>
                             <% } else { %>
-                                <iframe src="dashboard.jsp" style="width:100%; height:100vh; border:none;"></iframe>
+                                <iframe src="${pageContext.request.contextPath}/board.do?action=list" style="width:100%; height:100vh; border:none;"></iframe>
 
                                 <!-- <ul class="list-group">
                                     <li class="list-group-item">

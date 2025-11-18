@@ -25,7 +25,7 @@ public class BoardDAO {
                      "FROM Board WHERE delYn = 0 ORDER BY boardSeq DESC";
         
         List<Board> list = new ArrayList<>();
-
+        System.out.println(sql);
         // ★★★★★ [오류 2 해결] DB 연결 클래스 이름 수정
         try (Connection conn = DatabaseUtil.getConnection(); 
              PreparedStatement pstmt = conn.prepareStatement(sql);
