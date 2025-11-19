@@ -1,61 +1,52 @@
-// 플러그인 설정
-plugins {
-    id 'war'
-    id 'application' // ./gradlew run 을 실행하기 위함
-    id 'org.gretty' version '3.1.7' // Gretty 플러그인 추가
-}
+subprojects {
+    // 플러그인 설정
+        apply plugin: 'war'
+        apply plugin: 'application' // ./gradlew run 을 실행하기 위함
+        apply plugin: 'org.gretty' // Gretty 플러그인 추가
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-}
-
-
-// 라이브러리 다운로드 저장소
-repositories {
-    mavenCentral()
-    gradlePluginPortal()
-}
-
-// 의존성(라이브러리) 목록
-dependencies {
-    // compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'  // providedCompile → compileOnly (deprecated)
-    // compileOnly 'jakarta.servlet.jsp:jakarta.servlet.jsp-api:4.0.0'
-    // implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'
-    // implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.0'
-    compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
-    compileOnly 'javax.servlet.jsp:javax.servlet.jsp-api:2.3.3'
-    implementation 'javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.1'
-    implementation 'org.glassfish.web:javax.servlet.jsp.jstl:1.2.1'
-    implementation 'com.mysql:mysql-connector-j:8.0.33' // MySQL 드라이버
-    implementation 'org.mindrot:jbcrypt:0.4' // 비밀번호 암호화
-}
-
-
-tasks.withType(JavaCompile) {
-    options.release = 11
-    options.encoding = 'UTF-8'
-}
-
-
-gretty {
-    contextPath = '/'    // 웹사이트 주소를 http://localhost:8080/ 로 설정
-    httpPort = 8080      // 8080 포트 사용
-    servletContainer = 'tomcat9'  // Tomcat 10 (jakarta 호환)
-    scanInterval = 1000  // 1초마다 변경 감지 (hot reload)
+    java {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
-war {
-    archiveFileName = 'streets.war'  // WAR 이름 설정
+
+    // 라이브러리 다운로드 저장소
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+
+    // 의존성(라이브러리) 목록
+    dependencies {
+        compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
+        compileOnly 'javax.servlet.jsp:javax.servlet.jsp-api:2.3.3'
+        implementation 'javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.1'
+        implementation 'org.glassfish.web:javax.servlet.jsp.jstl:1.2.1'
+        implementation 'com.mysql:mysql-connector-j:8.0.33' // MySQL 드라이버
+        implementation 'org.mindrot:jbcrypt:0.4' // 비밀번호 암호화
+    }
+
+
+    tasks.withType(JavaCompile) {
+        options.release = 11
+        options.encoding = 'UTF-8'
+    }
+
+
+    def env = project.hasProperty('env') ? project.env : 'local'
+    gretty {
+        contextPath = '/'    // 웹사이트 주소를 http://localhost:8080/ 로 설정
+        httpPort = 8080      // 8080 포트 사용
+        servletContainer = 'tomcat9'  // Tomcat 10 (jakarta 호환)
+        scanInterval = 1000  // 1초마다 변경 감지 (hot reload)
+        jvmArgs = ["-Denv=${env}"]
+    }
+
+    // war {
+    //     doFirst {
+    //         ext.env = 'prod'
+    //     }
+    //     archiveFileName = 'streets.war'  // WAR 이름 설정
+    // }
+
 }
-
-// task fatJar(type: Jar) {
-//     archiveClassifier.set('all')  // 파일명에 '-all' 추가
-//     duplicatesStrategy = DuplicatesStrategy.EXCLUDE // 중복 파일 제외
-//     from sourceSets.main.output
-
-//     dependsOn configurations.runtimeClasspath
-//     from {
-//         configurations.runtimeClasspath.filter { it.exists() }.collect { zipTree(it) }
-//     }
-// }

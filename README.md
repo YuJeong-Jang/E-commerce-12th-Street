@@ -3,12 +3,11 @@
 ## 프로젝트 구조
 - `src/main/java/com/commerce/board` - 게시판
 - `src/main/java/com/commerce/member` - 회원관리
-- `src/main/resources/application.properties` - 환경설정
 - `src/main/webapp` - jsp
 
 ## 환경 설정
-1. JDK 17 이상 설치
-    - mac : brew install microsoftopenjdk@17
+1. JDK 11 이상 설치
+    - mac : brew install microsoftopenjdk@11
     - window : choco install openjdk17 -y (Chocolatey 패키지 사용)
 
 2. Gradle 8.5 설치 (Gretty dependency를 사용하기 위해 버전 고정)
@@ -33,7 +32,7 @@ $ ./gradlew build
 ```
 - 실행
 ```
-$ ./gradlew run
+$ ./gradlew streets-member:appRun -Denv=local
 ```
 - http://localhost:8080 확인
 
@@ -41,14 +40,8 @@ $ ./gradlew run
 ### 프로젝트 빌드 (컴파일 + 테스트)
 ./gradlew build
 
-### JAR 파일만 생성
-./gradlew jar
-
-### Fat JAR 생성 (모든 의존성 포함)
-./gradlew fatJar
-
 ### 애플리케이션 실행
-./gradlew run
+./gradlew streets-member:appRun -Denv=local
 
 ### 의존성 확인
 ./gradlew dependencies
@@ -59,5 +52,7 @@ $ ./gradlew run
 ### 클린 후 빌드
 ./gradlew clean build
 
+### war 파일 생성
+./gradlew streets-member:war -Denv=prod
 
-톰캣 버전 Embedded Tomcat 10.1.20
+톰캣 버전 Embedded Tomcat 9.0.71

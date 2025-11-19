@@ -1,0 +1,24 @@
+plugins {
+    id 'application' // ./gradlew run 을 실행하기 위함
+    id 'org.gretty' // Gretty 플러그인 추가
+    id 'war'
+}
+
+dependencies {
+    implementation project(':streets-modules')
+}
+
+
+gretty {
+    contextPath = '/'    // 웹사이트 주소를 http://localhost:8080/ 로 설정
+    httpPort = 8080      // 8080 포트 사용
+    servletContainer = 'tomcat9'  // Tomcat 10 (jakarta 호환)
+    scanInterval = 1000  // 1초마다 변경 감지 (hot reload)
+    }
+
+war {
+    doFirst {
+        ext.env = 'prod'
+    }
+    archiveFileName = 'streets-board.war'  // WAR 이름 설정
+}

@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession; // 세션 사용을 위해 임포트
 
 import java.io.IOException;
+import java.io.BufferedReader;
 import java.util.List;
 
 @WebServlet(name = "boardServlet", urlPatterns = "/board.do")
@@ -64,6 +65,8 @@ public class BoardServlet extends HttpServlet {
             case "edit":
                 handleEditPost(req, res); // 수정 처리
                 break;
+            case "sessionSave":
+                handleSessionSave(req,res); // 세션 처리
             default:
                 res.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -74,7 +77,7 @@ public class BoardServlet extends HttpServlet {
         System.out.println("[BoardServlet] /board.do (list) GET 요청 수신");
         List<Board> boardList = boardDao.getBoardList();
         req.setAttribute("boardList", boardList);
-        
+        System.out.print("=============================");
         RequestDispatcher dispatcher = req.getRequestDispatcher("/dashboard.jsp");
         dispatcher.forward(req, res);
     }
@@ -172,4 +175,33 @@ public class BoardServlet extends HttpServlet {
         res.sendRedirect(req.getContextPath() + "/board.do");
     }
     
+    // 세션 저장 관련 처리 메서드
+    private void handleSessionSave(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        // JSON body 읽기
+        StringBuilder sb = new StringBuilder();
+        String line;
+        try (BufferedReader reader = req.getReader()) {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        }
+        String requestBody = sb.toString();
+
+        // 간단히 파싱(예: userName 필드만)
+        // 실무에선 Gson, Jackson같은 라이브러리 사용 권장
+        String username = null;
+        if (requestBody.contains("username")) {
+            username = requestBody.replaceAll(".*\"username\"\\s*:\\s*\"([^\"]+)\".*", "$1");
+        }
+
+        if (username != null) {
+            HttpSession session = req.getSession();
+            System.out.println(username);
+            session.setAttribute("loggedInUser", username);
+            res.setContentType("application/json");
+            res.getWriter().write("{\"status\":\"success\", \"username\":\"" + username + "\"}");
+        } else {
+            res.sendError(HttpServletResponse.SC_BAD_REQUEST, "username missing");
+        }
+    }
 }

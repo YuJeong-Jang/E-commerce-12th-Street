@@ -2,25 +2,33 @@
     <%@ include file="header.jsp" %>
         <% String username=(String) session.getAttribute("loggedInUser"); String
             loginError=request.getParameter("error"); %>
+            <script>
+                // 메시지 리스너는 최상단 또는 <body> 상단에 위치시켜 빠르게 등록
+                window.addEventListener( 'message', function ( event ) {
+                    const trustedOrigin = 'http://localhost:8080'; // 자식 iframe 도메인:포트
+                    if ( event.origin !== trustedOrigin ) return;
 
+                    if ( event.data.ready ) {
+                        const iframe = document.getElementById( 'boardIframe' );
+                        const username = '<%= username != null ? username : "" %>';  // 서버 세션값 JSP 변수에서 가져오기
+                        iframe.contentWindow.postMessage( { loggedInUser: username }, trustedOrigin );
+                    }
+                } );
+
+            </script>
             <div class="container mt-5">
                 <div class="row g-4">
                     <div class="col-md-8">
                         <div class="p-4">
-                            <% if (username == null) { %>
-                            <h1>E-commerce 12th Street</h1>
-                            <h2 class="mt-4 mb-3">
-                                "어서오세요! 환영합니다."
-                            </h2>
-                            <% } else { %>
-                                <iframe src="${pageContext.request.contextPath}/board.do?action=list" style="width:100%; height:100vh; border:none;"></iframe>
-
-                                <!-- <ul class="list-group">
-                                    <li class="list-group-item">
-                                        <a href="board.do" class="text-decoration-none">자유 게시판</a>
-                                    </li>
-                                </ul> -->
-                            <% } %>
+                            <% if (username==null) { %>
+                                <h1>E-commerce 12th Street</h1>
+                                <h2 class="mt-4 mb-3">
+                                    "어서오세요! 환영합니다."
+                                </h2>
+                                <% } else { %>
+                                    <iframe src="http://localhost:8080/board.do?action=list" id="boardIframe"
+                                        style="width:100%; height:100vh; border:none;"></iframe>
+                                <% } %>
                         </div>
                     </div>
 
@@ -77,6 +85,26 @@
                 </div>
             </div>
 
+            <!-- <script>
+                // window.onload = function () {
+                //     const username = '<%= username != null ? username : "" %>';
+                //     const iframe = document.getElementById( 'boardIframe' );
+
+                //     // 부모->iframe에 메시지 전달 (postMessage)
+                //     iframe.addEventListener('DOMContentLoaded', function () {
+                //         iframe.contentWindow.postMessage( { loggedInUser: username }, 'http://localhost:8080' );
+                //     });
+                // };
+                window.addEventListener( 'message', ( event ) => {
+                    if ( event.origin !== 'http://localhost:8080' ) return;
+                    if ( event.data.ready ) {
+                        const iframe = document.getElementById( 'boardIframe' );
+                        const username = '<%= username != null ? username : "" %>';
+                        iframe.contentWindow.postMessage( { loggedInUser: username }, 'http://localhost:8080' );
+                    }
+                } );
+
+            </script> -->
             </body>
 
             </html>

@@ -1,10 +1,38 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
     <%@ include file="header.jsp" %>
+    <script>
+        // 메시지 이벤트 리스너는 최상단에 위치하여 메시지를 놓치지 않도록 등록
+        window.addEventListener( 'message', ( event ) => {
+            const trustedOrigin = 'http://localhost:7070'; // 부모 도메인 및 포트
+            if ( event.origin !== trustedOrigin ) return;
+
+            const data = event.data;
+
+            if ( data.loggedInUser ) {
+                // 세션 동기화용 AJAX 요청 등 추가 작업
+                fetch( '${pageContext.request.contextPath}/board.do?action=sessionSave', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify( { username: data.loggedInUser } ),
+                credentials: 'include'  // 쿠키 전달용
+            } ).then( res => res.json() )
+                .then( data => console.log( '세션저장 결과', data ) );
+              }
+        } );
+
+        // DOMContentLoaded 시 부모에 준비 완료 신호 전송
+        window.addEventListener( 'DOMContentLoaded', () => {
+            window.parent.postMessage( { ready: true }, 'http://localhost:7070' );
+        } );
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <div class="container mt-5">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold text-primary">게시판</h2>
+                <h2 class="fw-bold text-primary" id="text-primary">게시판</h2>
+                <div id="userInfo">로그인 정보 대기중...</div>
                 <a href="${pageContext.request.contextPath}/board.do?action=writeForm"
-                    class="btn btn-outline-primary btn-sm">글쓰기</a>
+                    class="btn btn-outline-primary btn-sm" id="writeForm">글쓰기</a>
             </div>
 
             <div class="card shadow-sm">
@@ -94,29 +122,29 @@
                 </div>
             </div>
         </div>
-
         <script>
-            const editModal = document.getElementById('editModal');
-            editModal.addEventListener('show.bs.modal', function (event) {
-                const button = event.relatedTarget;
-                const boardSeq = button.getAttribute('data-board-seq');
-                const boardTitle = button.getAttribute('data-board-title');
-                const boardContents = button.getAttribute('data-board-contents');
-                document.getElementById('boardSeq').value = boardSeq;
-                document.getElementById('editTitle').value = boardTitle;
-                document.getElementById('editContents').value = boardContents;
-            });
+            // 수정모달 열기
+                const editModal = document.getElementById( 'editModal' );
+                editModal.addEventListener( 'show.bs.modal', function ( event ) {
+                    const button = event.relatedTarget;
+                    const boardSeq = button.getAttribute( 'data-board-seq' );
+                    const boardTitle = button.getAttribute( 'data-board-title' );
+                    const boardContents = button.getAttribute( 'data-board-contents' );
+                    document.getElementById( 'boardSeq' ).value = boardSeq;
+                    document.getElementById( 'editTitle' ).value = boardTitle;
+                    document.getElementById( 'editContents' ).value = boardContents;
+                } );
 
-            document.getElementById('editForm').addEventListener('submit', function (event) {
-                const boardSeq = document.getElementById('boardSeq').value;
-                const title = document.getElementById('editTitle').value;
-                const contents = document.getElementById('editContents').value;
-                console.log('boardSeq:', boardSeq);
-                console.log('title:', title);
-                console.log('contents:', contents);
-            });
+                // 수정 액션
+                document.getElementById( 'editForm' ).addEventListener( 'submit', function ( event ) {
+                    const boardSeq = document.getElementById( 'boardSeq' ).value;
+                    const title = document.getElementById( 'editTitle' ).value;
+                    const contents = document.getElementById( 'editContents' ).value;
+                    console.log( 'boardSeq:', boardSeq );
+                    console.log( 'title:', title );
+                    console.log( 'contents:', contents );
+                } );
         </script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         </body>
 
         </html>
