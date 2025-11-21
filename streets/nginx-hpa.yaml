@@ -1,0 +1,35 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nginx-proxy-hpa
+  namespace: web-proxy
+  labels:
+    app: frontend-proxy
+spec:
+  # 스케일링 대상 (우리가 만든 Deployment 연결)
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx-deploy
+  
+  # 평소에는 2대를 유지(고가용성)하다가, 트래픽 폭주 시 최대 10대까지 늘립니다.
+  minReplicas: 2
+  maxReplicas: 10
+
+  metrics:
+    # 파드들의 평균 CPU 사용률이 80%를 넘으면 파드를 추가(Scale Out)합니다.
+    # 반대로 사용률이 떨어지면 줄입니다(Scale In).
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+          
+    # 메모리가 80% 차오르면 OOM(Out Of Memory)으로 죽기 전에 파드를 늘려서 부하를 분산합니다.
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80

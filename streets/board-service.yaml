@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tomcat-board-service
+  namespace: board-service
+  labels:
+    app: backend-board
+spec:
+  type: ClusterIP
+  selector:
+    app: backend-board
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
