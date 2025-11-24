@@ -5,7 +5,7 @@
             <script>
                 // 메시지 리스너는 최상단 또는 <body> 상단에 위치시켜 빠르게 등록
                 window.addEventListener( 'message', function ( event ) {
-                    const trustedOrigin = 'http://localhost:8080'; // 자식 iframe 도메인:포트
+		    const trustedOrigin = 'https://board.12-streets.store';
                     if ( event.origin !== trustedOrigin ) return;
 
                     if ( event.data.ready ) {
@@ -26,7 +26,7 @@
                                     "어서오세요! 환영합니다."
                                 </h2>
                                 <% } else { %>
-                                    <iframe src="http://localhost:8080/board.do?action=list" id="boardIframe"
+                                    <iframe src="/board.do?action=list" id="boardIframe"
                                         style="width:100%; height:100vh; border:none;"></iframe>
                                 <% } %>
                         </div>
@@ -96,11 +96,13 @@
                 //     });
                 // };
                 window.addEventListener( 'message', ( event ) => {
-                    if ( event.origin !== 'http://localhost:8080' ) return;
+		    const trustedOrigin = 'https://board.12-streets.store';
+                    
+		    if ( event.origin !== 'trustedOrigin' ) return;
                     if ( event.data.ready ) {
                         const iframe = document.getElementById( 'boardIframe' );
                         const username = '<%= username != null ? username : "" %>';
-                        iframe.contentWindow.postMessage( { loggedInUser: username }, 'http://localhost:8080' );
+                        iframe.contentWindow.postMessage( { loggedInUser: username }, 'trustedOrigin' );
                     }
                 } );
 

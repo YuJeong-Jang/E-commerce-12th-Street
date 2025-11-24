@@ -10,7 +10,7 @@ dependencies {
 
 gretty {
     contextPath = '/'    // 웹사이트 주소를 http://localhost:8080/ 로 설정
-    httpPort = 7070      // 8080 포트 사용
+    httpPort = 8080      // 8080 포트 사용
     servletContainer = 'tomcat9'  // Tomcat 10 (jakarta 호환)
     scanInterval = 1000  // 1초마다 변경 감지 (hot reload)
     }

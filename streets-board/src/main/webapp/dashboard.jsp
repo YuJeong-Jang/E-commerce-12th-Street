@@ -3,9 +3,8 @@
     <script>
         // 메시지 이벤트 리스너는 최상단에 위치하여 메시지를 놓치지 않도록 등록
         window.addEventListener( 'message', ( event ) => {
-            const trustedOrigin = 'http://localhost:8080'; // 부모 도메인 및 포트
-            if ( event.origin !== trustedOrigin ) return;
-
+            const myDomain = 'https://board.12-streets.store';
+	    if ( event.origin !== trustedOrigin ) return;
             const data = event.data;
 
             if ( data.loggedInUser ) {
@@ -22,7 +21,7 @@
 
         // DOMContentLoaded 시 부모에 준비 완료 신호 전송
         window.addEventListener( 'DOMContentLoaded', () => {
-            window.parent.postMessage( { ready: true }, 'http://localhost:7070' );
+		window.parent.postMessage({ ready: true }, myDomain);
         } );
 
     </script>
