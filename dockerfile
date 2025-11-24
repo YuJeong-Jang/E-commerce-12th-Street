@@ -1,4 +1,3 @@
-# [수정] Ubuntu 대신 Java가 이미 설치된 Alpine 이미지를 사용하여 apt-get 에러 방지
 FROM eclipse-temurin:11-jdk-alpine AS builder
 
 ARG SERVICE_NAME
