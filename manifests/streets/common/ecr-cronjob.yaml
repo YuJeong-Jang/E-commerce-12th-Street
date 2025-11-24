@@ -1,0 +1,91 @@
+# 1. 권한 설정 (RBAC)
+# 봇이 시크릿을 지우고 다시 만들 수 있는 권한을 줍니다.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ecr-refresh-sa
+  namespace: web-proxy
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: secret-manager-role
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["delete", "create", "get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: secret-manager-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: secret-manager-role
+subjects:
+  - kind: ServiceAccount
+    name: ecr-refresh-sa
+    namespace: web-proxy
+
+---
+# 2. 크론잡 (CronJob) 정의
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ecr-refresh-job
+  namespace: web-proxy
+spec:
+  # 10시간마다 실행 (분 시 일 월 요일)
+  schedule: "0 */10 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: ecr-refresh-sa
+          containers:
+          - name: ecr-refresh
+            image: google/cloud-sdk:alpine  # kubectl이 포함된 가벼운 이미지
+            command:
+            - /bin/sh
+            - -c
+            - |
+              # 1. 필요한 도구 설치 (AWS CLI)
+              apk add --no-cache aws-cli
+              
+              # 2. ECR 로그인 토큰 가져오기
+              TOKEN=$(aws ecr get-login-password --region ap-northeast-2)
+              
+              # 3. 각 네임스페이스별 시크릿 갱신 (덮어쓰기)
+              
+              # (1) web-proxy (nginx)
+              kubectl delete secret ecr-cred-nginx -n web-proxy --ignore-not-found
+              kubectl create secret docker-registry ecr-cred-nginx \
+                --docker-server=820313036770.dkr.ecr.ap-northeast-2.amazonaws.com \
+                --docker-username=AWS \
+                --docker-password=$TOKEN \
+                -n web-proxy
+              
+              # (2) member-service
+              kubectl delete secret ecr-cred-member -n member-service --ignore-not-found
+              kubectl create secret docker-registry ecr-cred-member \
+                --docker-server=820313036770.dkr.ecr.ap-northeast-2.amazonaws.com \
+                --docker-username=AWS \
+                --docker-password=$TOKEN \
+                -n member-service
+              
+              # (3) board-service
+              kubectl delete secret ecr-cred-board -n board-service --ignore-not-found
+              kubectl create secret docker-registry ecr-cred-board \
+                --docker-server=820313036770.dkr.ecr.ap-northeast-2.amazonaws.com \
+                --docker-username=AWS \
+                --docker-password=$TOKEN \
+                -n board-service
+                
+              echo "All ECR secrets refreshed successfully!"
+            
+            envFrom:
+            - secretRef:
+                name: aws-secret  # 1단계에서 만든 AWS 접속 정보 사용
+          
+          restartPolicy: OnFailure

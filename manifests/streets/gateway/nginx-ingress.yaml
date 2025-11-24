@@ -1,0 +1,34 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  namespace: web-proxy
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - board.12-streets.store
+    - auth.12-streets.store
+    secretName: streets-prod-tls
+  rules:
+  - host: board.12-streets.store
+    http:
+      paths:
+      - path: /board.do
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-board-service
+            port:
+              number: 8080
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-member-service
+            port:
+              number: 8080
