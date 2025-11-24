@@ -10,8 +10,10 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: tomcat-member-deploy
+  
   minReplicas: 2
-  maxReplicas: 10
+  maxReplicas: 5
+  
   metrics:
     - type: Resource
       resource:
@@ -19,3 +21,19 @@ spec:
         target:
           type: Utilization
           averageUtilization: 70
+
+    - type: Pods
+      pods:
+        metric:
+          name: http_requests_per_second
+        target:
+          type: AverageValue
+          averageValue: 50
+          
+    - type: Pods
+      pods:
+        metric:
+          name: tomcat_threadpool_queue_size
+        target:
+          type: AverageValue
+          averageValue: 20

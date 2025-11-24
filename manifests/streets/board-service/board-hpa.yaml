@@ -10,12 +10,30 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: tomcat-board-deploy
-  minReplicas: 2
-  maxReplicas: 10
+  
+  minReplicas: 4
+  maxReplicas: 20
+  
   metrics:
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 80
+          averageUtilization: 50
+          
+    - type: Pods
+      pods:
+        metric:
+          name: http_requests_per_second
+        target:
+          type: AverageValue
+          averageValue: 30
+          
+    - type: Pods
+      pods:
+        metric:
+          name: tomcat_threadpool_queue_size
+        target:
+          type: AverageValue
+          averageValue: 10
