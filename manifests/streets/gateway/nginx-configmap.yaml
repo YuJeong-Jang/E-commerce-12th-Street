@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config 
+  namespace: web-proxy
+  labels:
+    app: frontend-ingress
+data:  
+  keep-alive: "75"
+  client-header-timeout: "60"
+  client-body-timeout: "60"
+  proxy-connect-timeout: "10"
+  proxy-read-timeout: "60"
+  worker-processes: "auto"
+  max-worker-connections: "10240"
+  server-tokens: "false"
+  use-forwarded-headers: "true"
+  proxy-body-size: "10m"

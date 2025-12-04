@@ -8,35 +8,57 @@ import java.util.Properties;
 import java.io.IOException;
 
 public class DatabaseUtil {
-
-    // 하드코딩된 값 대신, 환경 변수(Environment Variables)에서 값을 읽어옵니다.
-    // 이 환경 변수는 3단계의 Deployment.yaml에서 주입됩니다.
-    private static final Properties props = new Properties();
-    // 뒤에 local은 default값으로 값이 null exception 대비
-    static String env = System.getProperty("env", "local");
-    static String fileNm = "application-" + env + ".properties";
+        
+    private static String DB_URL;
+    private static String DB_USER;
+    private static String DB_PASSWORD;
+ 
+    
     static {
-        try (InputStream is = DatabaseUtil.class.getClassLoader().getResourceAsStream(fileNm)) {
-            if (is == null) {
-                throw new RuntimeException(fileNm + "파일을 찾을 수 없습니다.");
+        String env = System.getProperty("env", "local");
+        Properties props = new Properties();
+        Boolean isLocal = "local".equals(env);
+
+        if (isLocal) {
+             // 로컬 properties 파일 로드 (try-with-resources 대신 일반 try)
+            InputStream input = null;
+            try {
+                input = DatabaseUtil.class.getClassLoader()
+                    .getResourceAsStream("application-local.properties");
+                if (input == null) {
+                    throw new RuntimeException("application-local.properties 파일을 찾을 수 없습니다.");
+                }
+                props.load(input);
+                DB_URL = props.getProperty("DB_URL");
+                DB_USER = props.getProperty("DB_USER");
+                DB_PASSWORD = props.getProperty("DB_PASSWORD");
+                System.out.println("로컬 Properties 로드 완료");
+            } catch (IOException e) {
+                throw new RuntimeException("Properties 파일 로드 실패", e);
+            } finally {
+                // 수동으로 close
+                if (input != null) {
+                    try {
+                        input.close();
+                    } catch (IOException e) {
+                        System.err.println("InputStream close 실패: " + e.getMessage());
+                    }
+                }
             }
-            props.load(is);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } else {
+            // k8s 환경변수 사용
+            DB_URL = System.getenv("DB_URL");
+            DB_USER = System.getenv("DB_USER");
+            DB_PASSWORD = System.getenv("DB_PASSWORD");
+            // 환경변수로 DB 연결
         }
     }
-
-    private static final Boolean isLocal = "local".equals(props.getProperty("spring.profiles.active"));
-    
-    private static final String DB_URL = isLocal ? props.getProperty("DB_URL") : System.getenv("DB_URL"); // DB 주소 및 DB 이름
-    private static final String DB_USER = isLocal ? props.getProperty("DB_USER") : System.getenv("DB_USER"); // DB 사용자 아이디
-    private static final String DB_PASSWORD = isLocal ? props.getProperty("DB_PASSWORD") : System.getenv("DB_PASSWORD"); // DB 비밀번호
 
     // DB 커넥션 가져오기
     public static Connection getConnection() throws SQLException {
         try {
             // MySQL JDBC 드라이버 로드
-            System.out.println("isLocal : " + isLocal + " DB_USER : " + DB_USER);
+            System.out.println( " DB_USER : " + DB_USER);
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
             System.err.println("MariaDB JDBC 드라이버를 찾을 수 없습니다.");

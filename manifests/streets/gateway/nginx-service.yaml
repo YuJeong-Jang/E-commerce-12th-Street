@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service      
+  namespace: web-proxy
+  labels:
+    app: frontend-ingress
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    app: frontend-ingress
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+    - name: https
+      port: 443
+      targetPort: 443
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-member-service
+  namespace: web-proxy
+spec:
+  type: ExternalName
+  externalName: tomcat-member-service.member-service.svc.cluster.local
+  ports:
+  - port: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-board-service
+  namespace: web-proxy
+spec:
+  type: ExternalName
+  externalName: tomcat-board-service.board-service.svc.cluster.local
+  ports:
+  - port: 8080
