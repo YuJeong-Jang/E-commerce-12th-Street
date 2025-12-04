@@ -1,4 +1,4 @@
-FROM nginx:alpine
+FROM nginx:1.27-alpine
 
 # 빌드할 때 전달받은 설정 파일(ARG)을 default.conf로 복사
 ARG CONF_FILE
