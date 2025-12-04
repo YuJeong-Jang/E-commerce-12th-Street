@@ -28,7 +28,7 @@ public class CustomConfiguration implements Filter {
         List<String> allowedOrigins = Arrays.asList("http://localhost:7070", "http://localhost:8080");
 
         // CORS 관련 헤더 추가
-        if (allowedOrigins.contains(origin)) {
+        if (origin != null) {
             res.setHeader("Access-Control-Allow-Origin", origin); // 부모 도메인 주소로 변경
             res.setHeader("Access-Control-Allow-Credentials", "true");
             res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
