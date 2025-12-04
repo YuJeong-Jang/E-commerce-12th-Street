@@ -1,9 +1,8 @@
-# 공식 Nginx 이미지 사용
-FROM registry.k8s.io/ingress-nginx/controller:v1.14.0
+FROM nginx:alpine
 
-# 커스텀 nginx 설정 파일을 컨테이너 내 위치로 복사 (필요시)
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+# 빌드할 때 전달받은 설정 파일(ARG)을 default.conf로 복사
+ARG CONF_FILE
+COPY ${CONF_FILE} /etc/nginx/conf.d/default.conf
 
-
-# Nginx 기본 포트 열기
 EXPOSE 80 443
+CMD ["nginx", "-g", "daemon off;"]
