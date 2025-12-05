@@ -2,7 +2,7 @@
 <%@ include file="header.jsp" %>
 <script>
     window.addEventListener( 'message', ( event ) => {
-        const trustedOrigin = 'https://board.12-streets.store';
+        const trustedOrigin = 'http://12-streets.store';
         
         // 터널링 환경(9090 포트)과 운영 환경(443 포트) 모두 호환되도록 처리
         if ( event.origin !== trustedOrigin && event.origin !== trustedOrigin + ":9090" ) return;
@@ -22,7 +22,7 @@
     } );
 
     window.addEventListener( 'DOMContentLoaded', () => {
-        const targetOrigin = 'https://board.12-streets.store';
+        const targetOrigin = 'http://12-streets.store';
         
         // 현재 포트에 맞춰 부모에게 메시지 전송
         const finalOrigin = window.location.port === '9090' ? targetOrigin + ':9090' : targetOrigin;

@@ -13,7 +13,7 @@
 <body>
 <script>
     window.addEventListener( 'message', function ( event ) {
-        const trustedOrigin = 'https://board.12-streets.store';
+        const trustedOrigin = 'http://12-streets.store';
         
         if ( event.origin !== trustedOrigin && event.origin !== trustedOrigin + ":9090" ) {
             return; 
