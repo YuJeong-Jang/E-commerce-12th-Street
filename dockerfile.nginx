@@ -1,8 +1,12 @@
-FROM nginx:1.27-alpine
-
-# 빌드할 때 전달받은 설정 파일(ARG)을 default.conf로 복사
+FROM alpine:3.21
+  
 ARG CONF_FILE
-COPY ${CONF_FILE} /etc/nginx/conf.d/default.conf
+
+# nginx 설치 + 필수 설정
+RUN apk add --no-cache nginx && \
+    mkdir -p /run/nginx /var/lib/nginx/logs /var/tmp/nginx
+
+COPY ${CONF_FILE} /etc/nginx/http.d/default.conf
 
 EXPOSE 80 443
 CMD ["nginx", "-g", "daemon off;"]
