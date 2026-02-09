@@ -27,28 +27,24 @@ spec:
 
       containers:
         - name: tomcat-board-container
-          image: 820313036770.dkr.ecr.ap-northeast-2.amazonaws.com/board-service:v1.3
+          image: 745173969277.dkr.ecr.ap-northeast-2.amazonaws.com/board-service:v1.4
           imagePullPolicy: Always
           
           ports:
             - containerPort: 8080
           
           env:
+            # 1. 값 전체를 싱글 쿼터(')로 감싸서 쉘 해석을 원천 차단합니다.
+            - name: JAVA_OPTS
+              value: '-Ddb.url=jdbc:mysql://172.20.252.50:3306/boarddb -Ddb.user=rapa -Ddb.password=1234'
+            
+            # 2. 혹시 모르니 개별 환경 변수도 가장 단순한 형태로 박습니다.
             - name: DB_URL
-              valueFrom:
-                secretKeyRef:
-                  name: tomcat-board-secret
-                  key: DB_URL
+              value: "jdbc:mysql://172.20.252.50:3306/boarddb"
             - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: tomcat-board-secret
-                  key: DB_USER
+              value: "rapa"
             - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: tomcat-board-secret
-                  key: DB_PASSWORD
+              value: "1234"
 
           resources:
             requests:
@@ -57,19 +53,3 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "500m"
-
-          livenessProbe:
-            httpGet:
-              path: /board.do?action=list
-              port: 8080
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 5
-            
-          readinessProbe:
-            httpGet:
-              path: /board.do?action=list
-              port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            timeoutSeconds: 5

@@ -34,3 +34,16 @@ src/main/resources/application-local.properties
 *.backup
 .gradle/
 tomcat.8080/
+
+# Terraform 관련 제외 목록
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+_override.tf
+_override.tf.json
+.terraform.lock.hcl

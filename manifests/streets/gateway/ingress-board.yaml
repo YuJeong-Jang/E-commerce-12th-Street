@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: board-ingress
+  namespace: board-service
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:745173969277:certificate/7bcf3aa1-d03e-4353-ab0b-8bab9c84cb99
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/group.name: "streets-app-group"
+spec:
+  ingressClassName: alb
+  rules:
+    - host: "12-streets.store"
+      http:
+        paths:
+          # --- 핵심: 경로를 / 에서 /board.do 로 변경합니다 ---
+          - path: /board.do
+            pathType: Prefix
+            backend:
+              service:
+                name: tomcat-board-service
+                port:
+                  number: 8080
