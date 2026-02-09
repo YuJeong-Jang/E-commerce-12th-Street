@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: streets-ecommerce
+  namespace: argocd
+spec:
+  project: default
+  source:
+    # 사용자님의 GitHub 저장소 주소
+    repoURL: https://github.com/YuJeong-Jang/E-commerce-12th-Street.git
+    targetRevision: myong/gajae
+    path: manifests/streets # 매니페스트들이 모여있는 경로
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
