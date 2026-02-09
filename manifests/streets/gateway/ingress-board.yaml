@@ -17,7 +17,7 @@ spec:
     - host: "12-streets.store"
       http:
         paths:
-          # --- 핵심: 경로를 / 에서 /board.do 로 변경합니다 ---
+          # --- ?�심: 경로�?/ ?�서 /board.do �?변경합?�다 ---
           - path: /board.do
             pathType: Prefix
             backend:

@@ -6,10 +6,10 @@ metadata:
   labels:
     app: backend-member
 spec:
-  type: ClusterIP # 내부 전용
+  type: ClusterIP # ?��? ?�용
   selector:
     app: backend-member
   ports:
     - protocol: TCP
-      port: 8080       # 서비스 접속 포트
-      targetPort: 8080 # 컨테이너 포트
+      port: 8080       # ?�비???�속 ?�트
+      targetPort: 8080 # 컨테?�너 ?�트

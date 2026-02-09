@@ -6,10 +6,10 @@ metadata:
 spec:
   project: default
   source:
-    # 사용자님의 GitHub 저장소 주소
+    # ?�용?�님??GitHub ?�?�소 주소
     repoURL: https://github.com/YuJeong-Jang/E-commerce-12th-Street.git
     targetRevision: myong/gajae
-    path: manifests/streets # 매니페스트들이 모여있는 경로
+    path: manifests/streets # 매니?�스?�들??모여?�는 경로
     directory:
       recurse: true
   destination:

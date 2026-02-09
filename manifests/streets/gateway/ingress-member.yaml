@@ -6,7 +6,7 @@ metadata:
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    # 그룹 이름을 같게 설정하면 하나의 ALB로 합쳐집니다.
+    # 그룹 ?�름??같게 ?�정?�면 ?�나??ALB�??�쳐집니??
     alb.ingress.kubernetes.io/group.name: "streets-app-group"
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:745173969277:certificate/7bcf3aa1-d03e-4353-ab0b-8bab9c84cb99
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
@@ -18,7 +18,7 @@ spec:
     - host: "12-streets.store"
       http:
         paths:
-          # 1. 로그인 관련 요청은 무조건 이 서비스로! (추가)
+          # 1. 로그??관???�청?� 무조�????�비?�로! (추�?)
           - path: /login.do
             pathType: Exact
             backend:
@@ -26,7 +26,7 @@ spec:
                 name: tomcat-member-service
                 port:
                   number: 8080
-          # 2. JSP 파일들도 이 서비스로! (추가)
+          # 2. JSP ?�일?�도 ???�비?�로! (추�?)
           - path: /index.jsp
             pathType: Exact
             backend:
@@ -34,7 +34,7 @@ spec:
                 name: tomcat-member-service
                 port:
                   number: 8080
-          # 3. 나머지는 기본 경로
+          # 3. ?�머지??기본 경로
           - path: /
             pathType: Prefix
             backend:

@@ -34,11 +34,11 @@ spec:
             - containerPort: 8080
           
           env:
-            # 1. 값 전체를 싱글 쿼터(')로 감싸서 쉘 해석을 원천 차단합니다.
+            # 1. �??�체�??��? 쿼터(')�?감싸?????�석???�천 차단?�니??
             - name: JAVA_OPTS
               value: '-Ddb.url=jdbc:mysql://172.20.252.50:3306/boarddb -Ddb.user=rapa -Ddb.password=1234'
             
-            # 2. 혹시 모르니 개별 환경 변수도 가장 단순한 형태로 박습니다.
+            # 2. ?�시 모르??개별 ?�경 변?�도 가???�순???�태�?박습?�다.
             - name: DB_URL
               value: "jdbc:mysql://172.20.252.50:3306/boarddb"
             - name: DB_USER

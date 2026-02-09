@@ -1,4 +1,4 @@
-# [1] IngressClass (버전 1.x 필수 리소스)
+# [1] IngressClass (버전 1.x ?�수 리소??
 apiVersion: networking.k8s.io/v1
 kind: IngressClass
 metadata:
@@ -9,7 +9,7 @@ spec:
   controller: k8s.io/ingress-nginx
 
 ---
-# [2] 서비스 어카운트
+# [2] ?�비???�카?�트
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -17,7 +17,7 @@ metadata:
   namespace: web-proxy
 
 ---
-# [3] 클러스터 롤 (권한 정의 - ingressclasses 포함)
+# [3] ?�러?�터 �?(권한 ?�의 - ingressclasses ?�함)
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -37,7 +37,7 @@ rules:
     verbs: ["get", "list", "watch", "update", "create", "patch"]
 
 ---
-# [4] 롤 바인딩 (권한 부여)
+# [4] �?바인??(권한 부??
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -52,7 +52,7 @@ subjects:
     namespace: web-proxy
 
 ---
-# [5] 디플로이먼트 (컨트롤러 실행)
+# [5] ?�플로이먼트 (컨트롤러 ?�행)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -72,14 +72,14 @@ spec:
     spec:
       serviceAccountName: nginx-ingress-serviceaccount
       
-      # ECR 인증 정보
+      # ECR ?�증 ?�보
       imagePullSecrets:
         - name: ecr-cred-nginx
       
       containers:
         - name: controller
-          # 빌드해서 올린 팀 이미지 (v1.1)
-          image: 820313036770.dkr.ecr.ap-northeast-2.amazonaws.com/web-proxy:v1.1
+          # 빌드?�서 ?�린 ?� ?��?지 (v1.1)
+          image: 745173969277.dkr.ecr.ap-northeast-2.amazonaws.com/web-proxy:v1.1
           imagePullPolicy: Always
           
           env:
@@ -107,7 +107,7 @@ spec:
             - containerPort: 80
             - containerPort: 443
           
-          # 헬스체크 (초기 지연 시간 15초로 넉넉하게)
+          # ?�스체크 (초기 지???�간 15초로 ?�넉?�게)
           livenessProbe:
             httpGet:
               path: /healthz
