@@ -25,27 +25,44 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      # --- 1. Member Service 빌드 및 푸시 ---
       - name: Build and Push Member Service
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          # --build-arg SERVICE_NAME=streets-member 를 반드시 추가해야 합니다.
           docker build \
             --build-arg SERVICE_NAME=streets-member \
             -t $ECR_REGISTRY/member-service:$IMAGE_TAG \
             -f dockerfile .
           docker push $ECR_REGISTRY/member-service:$IMAGE_TAG
-          
-      # 이미지 태그 업데이트 (GitOps 방식)
-      - name: Update Manifest
+
+      # --- 2. Board Service 빌드 및 푸시 (추가) ---
+      - name: Build and Push Board Service
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          # [권장] 구분자를 | 대신 @ 등을 써서 주소 내의 슬래시(/) 충돌을 방지하고, 
-          # 이미지 이름 뒤의 콜론(:) 이후 태그 부분만 정확히 찝어서 바꿉니다.
-          sed -i "s|image: .*/member-service:.*|image: ${{ steps.login-ecr.outputs.registry }}/member-service:${{ github.sha }}|g" manifests/streets/member-service/member-deploy.yaml
+          docker build \
+            --build-arg SERVICE_NAME=streets-board \
+            -t $ECR_REGISTRY/board-service:$IMAGE_TAG \
+            -f dockerfile .
+          docker push $ECR_REGISTRY/board-service:$IMAGE_TAG
+
+      # --- 3. 매니페스트 업데이트 (GitOps) ---
+      - name: Update Manifests
+        run: |
+          ECR_URL=${{ steps.login-ecr.outputs.registry }}
+          SHA=${{ github.sha }}
+          
+          # Member 매니페스트 수정
+          sed -i "s|image: .*/member-service:.*|image: ${ECR_URL}/member-service:${SHA}|g" manifests/streets/member-service/member-deploy.yaml
+          
+          # Board 매니페스트 수정
+          sed -i "s|image: .*/board-service:.*|image: ${ECR_URL}/board-service:${SHA}|g" manifests/streets/board-service/board-deploy.yaml
           
           git config --global user.email "ci@github.com"
           git config --global user.name "GitHub Actions"
-          git add manifests/streets/member-service/member-deploy.yaml
-          git commit -m "chore: update member-service image tag to ${{ github.sha }}"
+          git add manifests/streets/member-service/member-deploy.yaml manifests/streets/board-service/board-deploy.yaml
+          git commit -m "chore: update image tags for member and board services to ${SHA}"
           git push
